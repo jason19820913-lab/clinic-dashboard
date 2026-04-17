@@ -1065,15 +1065,31 @@ function buildGeminiFetch(){
   }
   return {url,headers};
 }
+function isHighDemand(msg){return msg.includes('high demand')||msg.includes('overloaded')||msg.includes('503');}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+async function callGeminiWithRetry(payload,maxRetries=4,statusEl){
+  const delays=[5000,10000,20000,30000];
+  for(let i=0;i<=maxRetries;i++){
+    const {url,headers}=buildGeminiFetch();
+    const res=await fetch(url,{method:'POST',headers,body:JSON.stringify({...payload,generationConfig:{temperature:0.7,maxOutputTokens:4096,topP:0.9}})});
+    if(res.ok){const j=await res.json();return j.candidates?.[0]?.content?.parts?.[0]?.text||'（無回傳內容）';}
+    const err=await res.json().catch(()=>({}));
+    const em=err.error?.message||`HTTP ${res.status}`;
+    if((em.includes('quota')||em.includes('RESOURCE_EXHAUSTED')||em.includes('limit: 0'))){
+      throw new Error('⚠️ 配額已用盡（'+GEMINI_MODEL+'）。請點 ⚙️ 切換模型（建議試 Gemini 2.5 Flash），或建立新專案的 API Key，或等待配額重置（每日重置）。');
+    }
+    if(isHighDemand(em)&&i<maxRetries){
+      const wait=delays[i];
+      if(statusEl)statusEl.textContent=`模型忙碌中，${wait/1000} 秒後自動重試（第 ${i+1}/${maxRetries} 次）…`;
+      await sleep(wait);
+      continue;
+    }
+    throw new Error(em);
+  }
+  throw new Error('🔄 模型持續繁忙，請稍後再試或至 ⚙️ 切換其他模型。');
+}
 async function callGemini(prompt){
-  const {url,headers}=buildGeminiFetch(prompt);
-  const res=await fetch(url,{method:'POST',headers,body:JSON.stringify({
-    contents:[{parts:[{text:prompt}]}],
-    generationConfig:{temperature:0.7,maxOutputTokens:4096,topP:0.9}
-  })});
-  if(!res.ok){const err=await res.json().catch(()=>({}));const em=err.error?.message||`HTTP ${res.status}`;if(em.includes('high demand')||em.includes('overloaded'))throw new Error('🔄 模型目前需求量大，請稍後 30 秒再試一次。');throw new Error(em);}
-  const j=await res.json();
-  return j.candidates?.[0]?.content?.parts?.[0]?.text||'（無回傳內容）';
+  return callGeminiWithRetry({contents:[{parts:[{text:prompt}]}]});
 }
 // ═══════════════════════════════════════════════
 //  AI 問答對話框
@@ -1133,24 +1149,8 @@ async function sendChat(){
       {role:'user',parts:[{text:q}]}
     ];
 
-    const {url,headers}=buildGeminiFetch();
-    const res=await fetch(url,{method:'POST',headers,body:JSON.stringify({
-      contents,
-      generationConfig:{temperature:0.7,maxOutputTokens:2048,topP:0.9}
-    })});
-    if(!res.ok){
-    const e=await res.json().catch(()=>({}));
-    const msg=e.error?.message||`HTTP ${res.status}`;
-    if(msg.includes('quota')||msg.includes('RESOURCE_EXHAUSTED')||msg.includes('limit: 0')){
-      throw new Error('⚠️ 配額已用盡（'+GEMINI_MODEL+'）。請點 ⚙️ 切換模型（建議試 Gemini 2.5 Flash），或建立新專案的 API Key，或等待配額重置（每日重置）。');
-    }
-    if(msg.includes('high demand')||msg.includes('overloaded')||res.status===503){
-      throw new Error('🔄 模型目前需求量大，請稍後 30 秒再試一次。');
-    }
-    throw new Error(msg);
-  }
-    const j=await res.json();
-    const answer=j.candidates?.[0]?.content?.parts?.[0]?.text||'（無回覆）';
+    const statusEl=document.getElementById('chatStatus');
+    const answer=await callGeminiWithRetry({contents,generationConfig:{temperature:0.7,maxOutputTokens:2048,topP:0.9}},4,statusEl);
 
     // Remove typing bubble, add real answer
     document.getElementById(typingId)?.remove();
