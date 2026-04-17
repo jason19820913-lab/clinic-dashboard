@@ -1075,8 +1075,11 @@ async function callGeminiWithRetry(payload,maxRetries=4,statusEl){
     if(res.ok){const j=await res.json();return j.candidates?.[0]?.content?.parts?.[0]?.text||'（無回傳內容）';}
     const err=await res.json().catch(()=>({}));
     const em=err.error?.message||`HTTP ${res.status}`;
-    if((em.includes('quota')||em.includes('RESOURCE_EXHAUSTED')||em.includes('limit: 0'))){
+    if(em.includes('quota')||em.includes('RESOURCE_EXHAUSTED')||em.includes('limit: 0')){
       throw new Error('⚠️ 配額已用盡（'+GEMINI_MODEL+'）。請點 ⚙️ 切換模型（建議試 Gemini 2.5 Flash），或建立新專案的 API Key，或等待配額重置（每日重置）。');
+    }
+    if(em.includes('too long')||em.includes('token')||em.includes('32768')||em.includes('context')){
+      throw new Error('⚠️ 對話內容過長，請點「🗑 清除」重新開始對話，或改問較簡短的問題。');
     }
     if(isHighDemand(em)&&i<maxRetries){
       const wait=delays[i];
@@ -1139,12 +1142,14 @@ async function sendChat(){
 
   try{
     const cur=periods[curIdx],prev=getPrev(curIdx),yoy=getYoy(curIdx);
-    const sysCtx=buildDataContext(cur,prev,yoy);
+    // 對話歷史超過 4 輪時改用精簡數據，節省 token
+    const compact=chatHistory.length>8;
+    const sysCtx=buildDataContext(cur,prev,yoy,compact);
 
     // Build multi-turn conversation
     const contents=[
-      {role:'user',parts:[{text:`你是金鶯診所集團的資深營運顧問，擁有醫療診所營運管理的深厚專業知識。請以繁體中文詳細回答問題，每個回答請：\n1. 直接引用數據佐證分析\n2. 分點說明，邏輯清晰\n3. 提供具體可操作的建議（而非籠統建議）\n4. 必要時說明背後原因與邏輯\n\n以下是當期詳細數據：\n\n${sysCtx}\n\n請根據以上數據，提供深入、專業的分析與建議。`}]},
-      {role:'model',parts:[{text:'好的，我已詳細了解金鶯診所集團本期的完整營運數據。我將根據實際數字提供深入分析。請問您想深入了解哪個面向？'}]},
+      {role:'user',parts:[{text:`你是金鶯診所集團的資深營運顧問，請以繁體中文詳細回答，直接引用數據，提供具體可操作建議。\n\n${sysCtx}`}]},
+      {role:'model',parts:[{text:'已了解金鶯診所集團本期營運數據，請問您的問題？'}]},
       ...chatHistory,
       {role:'user',parts:[{text:q}]}
     ];
@@ -1185,24 +1190,41 @@ function clearChat(){
   document.getElementById('chatStatus').textContent='';
 }
 
-function buildDataContext(cur,prev,yoy){
-  const c1=sumC(cur.months,'健保人次'),c3=yoy?sumC(yoy.months,'健保人次'):{};
-  const s1=sumC(cur.months,'診所銷售金額');
-  const w1=sumC(cur.months,'減重人次');
+function buildDataContext(cur,prev,yoy,compact=false){
+  const c1=sumC(cur.months,'健保人次'),c2=prev?sumC(prev.months,'健保人次'):{},c3=yoy?sumC(yoy.months,'健保人次'):{};
+  const s1=sumC(cur.months,'診所銷售金額'),s2=prev?sumC(prev.months,'診所銷售金額'):{};
+  const w1=sumC(cur.months,'減重人次'),w2=prev?sumC(prev.months,'減重人次'):{};
   const all=[...new Set(D.map(r=>r.clinic))].filter(c=>c1[c]>0).sort((a,b)=>(c1[b]||0)-(c1[a]||0));
-  let ctx=`## 分析期間：${cur.lbl}\n\n`;
-  ctx+=`## 集團 KPI 摘要\n`;
-  METRICS.forEach(m=>{
-    const v1=sumMs(cur.months,m.key),v3=yoy?sumMs(yoy.months,m.key):0;
-    const py=v3>0?pct(v1,v3):null;
-    ctx+=`- ${m.lbl}：${fmt(v1,m.fmt)}${m.unit}${py!==null?`（YoY ${ps(py)}`+(yoy?'，'+yoy.lbl+fmt(v3,m.fmt)+m.unit:'')+'）':''}\n`;
-  });
-  ctx+=`\n## 各院區詳細數據\n`;
-  all.forEach(c=>{
-    const py=c3[c]>0?pct(c1[c],c3[c]):null;
-    ctx+=`- ${c}：健保人次 ${(c1[c]||0).toLocaleString()}${py!==null?`（YoY ${ps(py)}`:'（新設'})，診所銷售 ${((s1[c]||0)/10000).toFixed(1)}萬，減重 ${(w1[c]||0).toLocaleString()}人\n`;
-  });
-  ctx+=`\n健保核定率：${(KDZL*100).toFixed(0)}%`;
+
+  // 集團總計
+  const totalHB=sumMs(cur.months,'健保人次'),totalHBp=prev?sumMs(prev.months,'健保人次'):0,totalHBy=yoy?sumMs(yoy.months,'健保人次'):0;
+  const totalSale=sumMs(cur.months,'診所銷售金額'),totalSalep=prev?sumMs(prev.months,'診所銷售金額'):0;
+  const totalW=sumMs(cur.months,'減重人次'),totalWp=prev?sumMs(prev.months,'減重人次'):0;
+  const totalPts=sumMs(cur.months,'健保點數'),totalPtsp=prev?sumMs(prev.months,'健保點數'):0;
+
+  let ctx=`【金鶯診所集團 ${cur.lbl} 營運數據】\n`;
+  ctx+=`集團KPI：健保人次${totalHB.toLocaleString()}（${totalHBp>0?'環比'+ps(pct(totalHB,totalHBp)):''}${totalHBy>0?' YoY'+ps(pct(totalHB,totalHBy)):''}）`;
+  ctx+=`｜健保點數${(totalPts/10000).toFixed(0)}萬（${totalPtsp>0?'環比'+ps(pct(totalPts,totalPtsp)):''}）`;
+  ctx+=`｜銷售${(totalSale/10000).toFixed(0)}萬（${totalSalep>0?'環比'+ps(pct(totalSale,totalSalep)):''}）`;
+  ctx+=`｜減重${totalW.toLocaleString()}人（${totalWp>0?'環比'+ps(pct(totalW,totalWp)):''}）\n`;
+  ctx+=`健保核定率${(KDZL*100).toFixed(0)}%｜共${all.length}院區\n\n`;
+
+  if(compact){
+    // 精簡模式：只列重要數字，節省 token
+    ctx+=`各院區（院區|健保人次|環比|銷售萬|減重）：\n`;
+    all.forEach(c=>{
+      const pp=c2[c]>0?ps(pct(c1[c],c2[c])):'新';
+      ctx+=`${c}|${(c1[c]||0).toLocaleString()}|${pp}|${((s1[c]||0)/10000).toFixed(0)}|${(w1[c]||0).toLocaleString()}\n`;
+    });
+  } else {
+    // 完整模式
+    ctx+=`各院區詳細數據：\n`;
+    all.forEach(c=>{
+      const pp=c2[c]>0?`環比${ps(pct(c1[c],c2[c]))}`:null;
+      const py=c3[c]>0?`YoY${ps(pct(c1[c],c3[c]))}`:null;
+      ctx+=`・${c}：健保人次${(c1[c]||0).toLocaleString()}（${[pp,py].filter(Boolean).join('，')||'新設'}）｜銷售${((s1[c]||0)/10000).toFixed(1)}萬｜減重${(w1[c]||0).toLocaleString()}人\n`;
+    });
+  }
   return ctx;
 }
 
