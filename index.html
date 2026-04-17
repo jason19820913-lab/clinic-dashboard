@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>金鶯診所集團 營運儀表板</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --card:rgba(255,255,255,.07);--card2:rgba(255,255,255,.13);
+  --bd:rgba(255,255,255,.1);--bd2:rgba(255,255,255,.22);
+  --tx:#f0f4ff;--sub:rgba(240,244,255,.55);--mu:rgba(240,244,255,.3);
+  --bl:#3b82f6;--bl-lt:rgba(59,130,246,.15);
+  --gr:#10b981;--gr-lt:rgba(16,185,129,.15);--gr-tx:#6ee7b7;
+  --re:#ef4444;--re-lt:rgba(239,68,68,.15);--re-tx:#fca5a5;
+  --or:#f59e0b;--pu:#8b5cf6;--tl:#14b8a6;
+  --r:14px;
+}
+html{font-size:16px}
+body{font-family:"Noto Sans TC","Arial",sans-serif;background:linear-gradient(135deg,#0d1b2a 0%,#111827 55%,#0f172a 100%);min-height:100vh;color:var(--tx);padding-bottom:48px;font-size:15px}
+.kv{font-size:clamp(22px,3.5vw,28px)!important}
+.plbl-main{font-size:17px!important}
+.kl{font-size:13px!important}
+.ki{font-size:19px!important}
+.kb{font-size:12px!important}
+.kbase{font-size:12px!important}
+.sec{font-size:13px!important}
+.cc .cn{font-size:14px!important}
+.cc .cv{font-size:21px!important}
+.cc .rk{font-size:12px!important}
+.cc .cs{font-size:12px!important}
+.ctbl{font-size:13.5px!important}
+.ctbl th{font-size:13px!important}
+.notice{font-size:14px!important}
+.btn{font-size:13px!important}
+.mt-btn{font-size:14px!important}
+.qs-btn,.cpill{font-size:13px!important}
+.mbt{font-size:13.5px!important}
+.bttl{font-size:14px!important}
+.bnm,.bnum{font-size:13px!important}
+.ai-title h3{font-size:16px!important}
+.ai-period{font-size:13px!important}
+.ai-idle{font-size:15px!important}
+.ai-sec-title{font-size:14px!important}
+.ai-card .ac-head{font-size:14px!important}
+.ai-card .ac-body{font-size:13.5px!important}
+.gemini-output .ai-gemini-content{font-size:15px!important;line-height:1.8!important}
+.gemini-output .ai-gemini-content h3{font-size:16px!important}
+.gemini-output .ai-gemini-content h4{font-size:15px!important}
+.ai-clinic-card .acc-name{font-size:15px!important}
+.ai-clinic-card .acc-body{font-size:14px!important}
+.ai-chat-title{font-size:15px!important}
+.chat-msg .bubble{font-size:15px!important;line-height:1.75!important}
+.ai-chat-suggestions button{font-size:13px!important}
+.ai-chat-bar textarea{font-size:15px!important}
+.ai-chat-status{font-size:13px!important}
+.spc-l{font-size:12.5px!important}
+.spc-v{font-size:14px!important}
+#lmsg{font-size:15px!important}
+.logo h1{font-size:clamp(16px,2.5vw,22px)!important}
+.logo .badge{font-size:13px!important}
+
+#ls{position:fixed;inset:0;background:#0d1b2a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:14px;transition:opacity .4s}
+#ls.hide{opacity:0;pointer-events:none}
+.spin{width:40px;height:40px;border:3px solid rgba(59,130,246,.2);border-top-color:#3b82f6;border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#lmsg{font-size:13px;color:var(--sub)}
+
+.hdr{background:linear-gradient(180deg,rgba(30,58,138,.5)0%,transparent 100%);border-bottom:1px solid var(--bd);padding:13px 18px 10px;position:sticky;top:0;z-index:50;backdrop-filter:blur(14px)}
+.hdr-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px}
+.logo .badge{font-size:11px;color:#93c5fd;letter-spacing:.1em;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.25);padding:2px 9px;border-radius:99px;display:inline-block;margin-bottom:3px}
+.logo h1{font-size:clamp(14px,2.2vw,19px);font-weight:900}
+.logo h1 span{color:#60a5fa}
+.hdr-r{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#srcTag{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:700}
+#srcTag.live{background:rgba(16,185,129,.2);color:#6ee7b7}
+#srcTag.static{background:rgba(245,158,11,.2);color:#fcd34d}
+.btn{font-size:11px;padding:5px 11px;border-radius:99px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:4px;border:none}
+.btn-bl{border:1px solid var(--bl)!important;background:var(--bl-lt);color:#93c5fd}
+.btn-bl:hover{background:rgba(59,130,246,.25)}
+.btn-bl.ld{opacity:.5;pointer-events:none}
+.btn-ai{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:700;box-shadow:0 4px 14px rgba(99,102,241,.35)}
+.btn-ai:hover{box-shadow:0 6px 20px rgba(99,102,241,.5);transform:translateY(-1px)}
+.btn-ai.ld{opacity:.6;pointer-events:none}
+
+.psel-bar{background:rgba(0,0,0,.2);border-bottom:1px solid var(--bd);padding:11px 18px}
+.psel-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;flex-wrap:wrap;gap:9px}
+.mode-toggle{display:flex;background:rgba(255,255,255,.06);border:1px solid var(--bd);border-radius:99px;padding:3px;flex-shrink:0}
+.mt-btn{font-size:12px;font-weight:700;padding:4px 13px;border-radius:99px;cursor:pointer;transition:.2s;color:var(--sub);border:none;background:transparent;white-space:nowrap}
+.mt-btn.on{background:var(--bl);color:#fff}
+.pnav{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.parr{width:27px;height:27px;border-radius:99px;border:1px solid var(--bd);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:.2s;color:var(--sub)}
+.parr:hover:not(:disabled){border-color:var(--bd2);background:var(--card2);color:var(--tx)}
+.parr:disabled{opacity:.3;cursor:default}
+.plbl{min-width:125px;text-align:center}
+.plbl-main{font-size:15px;font-weight:900}
+.plbl-sub{font-size:10px;color:var(--mu);margin-top:1px}
+.qs{display:flex;gap:4px;flex-wrap:wrap}
+.qs-btn{font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid var(--bd);background:transparent;color:var(--sub);cursor:pointer;transition:.2s;white-space:nowrap}
+.qs-btn:hover{border-color:var(--bd2);color:var(--tx)}
+.qs-btn.on{background:var(--bl);border-color:var(--bl);color:#fff;font-weight:700}
+.cpills{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.cpill{font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid var(--bd);background:var(--card);color:var(--sub);white-space:nowrap}
+.cpill .cv{font-weight:700;color:var(--tx)}
+
+.wrap{max-width:1100px;margin:0 auto;padding:14px 16px 0}
+.notice{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:var(--r);padding:8px 13px;font-size:12px;color:#fcd34d;margin-bottom:13px;display:none;line-height:1.6}
+.sec{font-size:11px;font-weight:700;color:var(--mu);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.sec::after{content:"";flex:1;height:1px;background:var(--bd)}
+
+.mtabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.mbt{font-size:11.5px;padding:4px 11px;border-radius:99px;border:1px solid var(--bd);background:transparent;color:var(--sub);cursor:pointer;transition:.2s;white-space:nowrap}
+.mbt:hover{border-color:var(--bl);color:var(--bl)}
+.mbt.on{background:var(--bl);border-color:var(--bl);color:#fff;font-weight:700}
+
+.kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(162px,1fr));gap:10px;margin-bottom:17px}
+.kcard{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:13px 12px 10px;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s,border-color .25s;animation:fu .45s ease both}
+.kcard:hover{transform:translateY(-4px);box-shadow:0 14px 36px rgba(0,0,0,.4);border-color:var(--bd2)}
+.kcard::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
+.cb::before{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+.cg::before{background:linear-gradient(90deg,#10b981,#6ee7b7)}
+.co::before{background:linear-gradient(90deg,#f59e0b,#fcd34d)}
+.cp::before{background:linear-gradient(90deg,#8b5cf6,#c4b5fd)}
+.cr::before{background:linear-gradient(90deg,#ef4444,#fca5a5)}
+.ct::before{background:linear-gradient(90deg,#14b8a6,#5eead4)}
+.ki{font-size:17px;margin-bottom:5px}
+.kl{font-size:11px;color:var(--sub);margin-bottom:2px}
+.kv{font-size:clamp(20px,3.2vw,25px);font-weight:900;line-height:1;letter-spacing:-.02em}
+.kv .ku{font-size:12px;font-weight:400;color:var(--sub);margin-left:2px}
+.kcomps{display:flex;gap:4px;margin-top:7px;flex-wrap:wrap}
+.kb{display:inline-flex;align-items:center;gap:2px;font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:99px;white-space:nowrap}
+.kb.up{background:var(--gr-lt);color:var(--gr-tx)}
+.kb.dn{background:var(--re-lt);color:var(--re-tx)}
+.kb.na{background:rgba(255,255,255,.05);color:var(--mu)}
+.kbase{font-size:10px;color:var(--mu);margin-top:3px;line-height:1.5}
+
+.clinic-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.vtabs{display:flex;gap:4px;flex-wrap:wrap}
+.vbt{font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid var(--bd);background:transparent;color:var(--sub);cursor:pointer;transition:.2s;white-space:nowrap}
+.vbt:hover{color:var(--tx)}
+.vbt.on{background:var(--card2);border-color:var(--bd2);color:var(--tx);font-weight:700}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:17px}
+.cc{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 8px;text-align:center;transition:transform .2s,background .2s;animation:fu .45s ease both;position:relative;overflow:hidden}
+.cc:hover{transform:translateY(-3px);background:var(--card2)}
+.cc .rk{font-size:10px;color:var(--mu);margin-bottom:2px}
+.cc .cn{font-size:12px;font-weight:700;margin-bottom:4px}
+.cc .cv{font-size:19px;font-weight:900;line-height:1;color:#60a5fa}
+.cc .cs{font-size:10px;color:var(--mu);margin-top:2px}
+.cc .cbg{display:flex;gap:3px;justify-content:center;margin-top:5px;flex-wrap:wrap}
+.cc .cbb{font-size:10px;font-weight:700;padding:2px 5px;border-radius:99px}
+.cc .cbb.up{background:var(--gr-lt);color:var(--gr-tx)}
+.cc .cbb.dn{background:var(--re-lt);color:var(--re-tx)}
+.cc .cbb.na{background:rgba(255,255,255,.05);color:var(--mu)}
+.cc.gold{border-color:rgba(251,191,36,.4)}.cc.gold .cv{color:#fcd34d}
+.cc.silver{border-color:rgba(148,163,184,.35)}.cc.silver .cv{color:#cbd5e1}
+.cc.bronze{border-color:rgba(180,120,60,.35)}.cc.bronze .cv{color:#fbbf24}
+.cc.newc{border-color:rgba(139,92,246,.3)}.cc.newc .cv{color:#c4b5fd}
+.ntag{position:absolute;top:5px;right:5px;font-size:9px;background:rgba(139,92,246,.25);color:#c4b5fd;padding:1px 4px;border-radius:3px;font-weight:700}
+
+.spgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin-bottom:17px}
+.spc{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px}
+.spc-t{font-size:11px;font-weight:700;color:var(--sub);margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.spc-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.spc-r{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.spc-r:last-child{margin-bottom:0}
+.spc-l{font-size:10.5px;color:var(--mu)}
+.spc-v{font-size:12px;font-weight:700}
+
+.bwrap{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:13px 14px;margin-bottom:17px}
+.bttl{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:10px}
+.brow{display:grid;grid-template-columns:70px 1fr 58px;align-items:center;gap:7px;margin-bottom:6px}
+.brow:last-child{margin-bottom:0}
+.bnm{font-size:11px;color:rgba(240,244,255,.7);text-align:right}
+.btrk{height:9px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden}
+.bfil{height:100%;border-radius:99px;width:0;transition:width 1.3s cubic-bezier(.4,0,.2,1)}
+.bnum{font-size:11px;font-weight:700;text-align:right}
+
+.tbwrap{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px 14px;margin-bottom:17px;overflow-x:auto}
+.ctbl{width:100%;border-collapse:collapse;font-size:11.5px;min-width:480px}
+.ctbl th{background:rgba(255,255,255,.05);padding:7px 8px;text-align:center;font-size:11px;font-weight:700;color:var(--sub);border-bottom:1px solid var(--bd);white-space:nowrap}
+.ctbl th:first-child{text-align:left;min-width:80px}
+.ctbl td{padding:7px 8px;border-bottom:1px solid rgba(255,255,255,.04);text-align:center;vertical-align:middle}
+.ctbl td:first-child{text-align:left;font-weight:700}
+.ctbl tr:hover td{background:rgba(255,255,255,.025)}
+.ctbl tr.tr td{background:rgba(59,130,246,.08);font-weight:700;border-top:1px solid rgba(59,130,246,.2)}
+.pu{color:var(--gr-tx);font-weight:700}
+.pd{color:var(--re-tx);font-weight:700}
+.pn{color:var(--mu)}
+.tnew{font-size:10px;background:rgba(139,92,246,.2);color:#c4b5fd;padding:1px 4px;border-radius:3px;margin-left:3px}
+
+/* ═══ AI Panel ═══════════════════════════════════════ */
+.ai-panel{background:linear-gradient(135deg,rgba(99,102,241,.08)0%,rgba(139,92,246,.06)100%);border:1px solid rgba(139,92,246,.25);border-radius:var(--r);margin-bottom:17px;overflow:hidden}
+.ai-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(139,92,246,.15);flex-wrap:wrap;gap:8px}
+.ai-title{display:flex;align-items:center;gap:8px}
+.ai-title h3{font-size:14px;font-weight:900;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ai-period{font-size:11px;color:var(--mu);margin-top:2px}
+.ai-body{padding:0;max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.4,0,.2,1),padding .3s}
+.ai-body.open{max-height:9999px;padding:16px}
+.ai-idle{text-align:center;padding:24px 16px;color:var(--sub);font-size:13px}
+.ai-idle span{display:block;font-size:28px;margin-bottom:8px}
+
+/* AI sections */
+.ai-section{margin-bottom:14px}
+.ai-section:last-child{margin-bottom:0}
+.ai-sec-title{font-size:12px;font-weight:700;color:var(--mu);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.ai-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.ai-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px}
+.ai-card .ac-head{font-size:12px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.ai-card .ac-body{font-size:11.5px;color:var(--sub);line-height:1.65}
+.ai-card.green{border-color:rgba(16,185,129,.25);background:rgba(16,185,129,.06)}
+.ai-card.green .ac-head{color:var(--gr-tx)}
+.ai-card.red{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.06)}
+.ai-card.red .ac-head{color:var(--re-tx)}
+.ai-card.blue{border-color:rgba(59,130,246,.25);background:rgba(59,130,246,.06)}
+.ai-card.blue .ac-head{color:#93c5fd}
+.ai-card.orange{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.06)}
+.ai-card.orange .ac-head{color:#fcd34d}
+.ai-card.purple{border-color:rgba(139,92,246,.25);background:rgba(139,92,246,.06)}
+.ai-card.purple .ac-head{color:#c4b5fd}
+
+/* Summary row */
+.ai-summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+.ai-sum-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px 12px;text-align:center}
+.ai-sum-card .asc-icon{font-size:18px;margin-bottom:4px}
+.ai-sum-card .asc-val{font-size:18px;font-weight:900;line-height:1}
+.ai-sum-card .asc-lbl{font-size:10px;color:var(--mu);margin-top:3px}
+.ai-sum-card.good .asc-val{color:var(--gr-tx)}
+.ai-sum-card.warn .asc-val{color:#fcd34d}
+.ai-sum-card.bad .asc-val{color:var(--re-tx)}
+
+/* Action items */
+.ai-actions{display:flex;flex-direction:column;gap:6px}
+.ai-action{display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:10px 12px}
+.ai-action .aa-pri{font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;flex-shrink:0;margin-top:1px}
+.ai-action .aa-pri.p1{background:rgba(239,68,68,.2);color:var(--re-tx)}
+.ai-action .aa-pri.p2{background:rgba(245,158,11,.2);color:#fcd34d}
+.ai-action .aa-pri.p3{background:rgba(59,130,246,.2);color:#93c5fd}
+.ai-action .aa-text{font-size:12px;color:var(--sub);line-height:1.6}
+.ai-action .aa-text b{color:var(--tx)}
+
+/* Typing cursor */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.cursor{display:inline-block;width:2px;height:14px;background:var(--sub);margin-left:2px;animation:blink .7s infinite;vertical-align:middle}
+
+/* Loading dots */
+.ai-loading{display:flex;align-items:center;justify-content:center;gap:6px;padding:24px;color:var(--sub);font-size:13px}
+.ai-loading .dot{width:8px;height:8px;border-radius:50%;background:var(--pu);animation:bounce 1.2s infinite}
+.ai-loading .dot:nth-child(2){animation-delay:.2s}
+.ai-loading .dot:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,80%,100%{transform:scale(0);opacity:.5}40%{transform:scale(1);opacity:1}}
+
+@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.kcard:nth-child(1){animation-delay:.03s}.kcard:nth-child(2){animation-delay:.07s}
+.kcard:nth-child(3){animation-delay:.11s}.kcard:nth-child(4){animation-delay:.15s}
+.kcard:nth-child(5){animation-delay:.19s}.kcard:nth-child(6){animation-delay:.23s}
+@media(max-width:560px){.psel-in{flex-direction:column;align-items:flex-start}.cpills{margin-left:0}}
+
+.btn-nlm{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;font-size:12px;padding:8px 14px;}
+.btn-nlm:hover{opacity:.85;}
+.btn-cfg{background:rgba(99,102,241,.2);color:#a78bfa;font-size:14px;padding:8px 12px;border:1px solid #4f46e5;}
+.btn-cfg:hover{background:rgba(99,102,241,.35);}
+.gemini-output .ai-gemini-content{font-size:13.5px;line-height:1.75;color:#cbd5e1;}
+.gemini-output .ai-gemini-content h3{font-size:14px;color:#a78bfa;margin:14px 0 6px;}
+.gemini-output .ai-gemini-content h4{font-size:13px;color:#93c5fd;margin:10px 0 4px;}
+.gemini-output .ai-gemini-content ul{padding-left:18px;margin:6px 0;}
+.gemini-output .ai-gemini-content li{margin:4px 0;}
+.gemini-output .ai-gemini-content strong{color:#f0abfc;}
+.gemini-output .ai-gemini-content p{margin:6px 0;}
+.gemini-output .ai-gemini-content blockquote{border-left:3px solid #4f46e5;padding-left:10px;color:#94a3b8;margin:8px 0;}
+.ai-clinic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:10px;}
+.ai-clinic-card{background:rgba(30,30,46,.8);border:1px solid #3f3f5a;border-radius:10px;padding:14px;}
+.ai-clinic-card .acc-name{font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:6px;}
+.ai-clinic-card .acc-body{font-size:12px;color:#94a3b8;line-height:1.6;}
+.ai-tab-bar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.ai-tab-btn{padding:6px 14px;border-radius:20px;border:1px solid #3f3f5a;background:transparent;color:#94a3b8;font-size:12px;cursor:pointer;}
+.ai-tab-btn.on{background:#4f46e5;color:#fff;border-color:#4f46e5;}
+
+
+/* ── AI Chat ── */
+.ai-chat{border-top:1px solid var(--bd);margin-top:16px;padding-top:16px;}
+.ai-chat-title{font-size:13px;font-weight:700;color:#a78bfa;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.ai-chat-hint{font-size:11px;color:#475569;font-weight:400;}
+.ai-chat-msgs{display:flex;flex-direction:column;gap:12px;max-height:420px;overflow-y:auto;margin-bottom:12px;padding-right:4px;}
+.ai-chat-msgs:empty{display:none;}
+.chat-msg{display:flex;gap:10px;align-items:flex-start;}
+.chat-msg.user{flex-direction:row-reverse;}
+.chat-msg .bubble{max-width:78%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.65;}
+.chat-msg.user .bubble{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border-bottom-right-radius:3px;}
+.chat-msg.ai .bubble{background:rgba(30,30,50,.9);border:1px solid #3f3f5a;color:#cbd5e1;border-bottom-left-radius:3px;}
+.chat-msg .bubble h3,.chat-msg .bubble h4{font-size:13px;color:#a78bfa;margin:8px 0 4px;}
+.chat-msg .bubble strong{color:#f0abfc;}
+.chat-msg .bubble ul{padding-left:16px;margin:4px 0;}
+.chat-msg .bubble li{margin:3px 0;}
+.chat-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:2px;}
+.chat-msg.user .chat-avatar{background:#4f46e5;}
+.chat-msg.ai .chat-avatar{background:#1e1e3a;border:1px solid #3f3f5a;}
+.ai-chat-suggestions{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.ai-chat-suggestions button{padding:5px 12px;border-radius:99px;border:1px solid #3f3f5a;background:rgba(99,102,241,.1);color:#a5b4fc;font-size:11px;cursor:pointer;transition:.2s;}
+.ai-chat-suggestions button:hover{background:rgba(99,102,241,.25);border-color:#6366f1;}
+.ai-chat-bar{display:flex;gap:8px;align-items:flex-end;}
+.ai-chat-bar textarea{flex:1;background:#0f0f1a;border:1px solid #3f3f5a;border-radius:10px;color:#e2e8f0;font-size:13px;padding:10px 12px;resize:none;font-family:inherit;line-height:1.5;transition:border .2s;}
+.ai-chat-bar textarea:focus{outline:none;border-color:#6366f1;}
+.ai-chat-bar textarea::placeholder{color:#475569;}
+#chatSendBtn{padding:10px 16px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;border-radius:10px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;line-height:1.3;text-align:center;min-width:56px;transition:.2s;}
+#chatSendBtn:hover{opacity:.85;}
+#chatSendBtn:disabled{opacity:.4;pointer-events:none;}
+.ai-chat-status{font-size:11px;color:#64748b;margin-top:6px;min-height:16px;}
+.typing-dot{display:inline-flex;gap:4px;align-items:center;}
+.typing-dot span{width:6px;height:6px;border-radius:50%;background:#6366f1;animation:tdot .9s ease-in-out infinite;}
+.typing-dot span:nth-child(2){animation-delay:.2s;}
+.typing-dot span:nth-child(3){animation-delay:.4s;}
+@keyframes tdot{0%,80%,100%{transform:scale(.7);opacity:.5}40%{transform:scale(1);opacity:1}}
+.chat-msg .bubble p{margin:4px 0;}
+
+.chart-outer{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px 18px;margin-bottom:4px;}
+.chart-outer.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:640px){.chart-outer.two-col{grid-template-columns:1fr;}}
+.chart-wrap{position:relative;height:300px;}
+.chart-wrap.half{height:260px;}
+.chart-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.chart-tab{padding:5px 13px;border-radius:99px;border:1px solid var(--bd);background:transparent;color:var(--sub);font-size:12px;cursor:pointer;transition:.2s;}
+.chart-tab.on{background:#3b82f6;color:#fff;border-color:#3b82f6;}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div id="ls"><div class="spin"></div><div id="lmsg">正在連接雲端資料…</div></div>
+
+<div class="hdr">
+  <div class="hdr-in">
+    <div class="logo">
+      <div class="badge">■ 金鶯診所集團</div>
+      <h1>營運 <span>動態儀表板</span></h1>
+    </div>
+    <div class="hdr-r">
+      <span id="srcTag" class="static">● 靜態</span>
+      <button class="btn btn-bl" id="btnR" onclick="init()">↺ 重新整理</button>
+    </div>
+  </div>
+</div>
+
+<div class="psel-bar">
+  <div class="psel-in">
+    <div class="mode-toggle">
+      <button class="mt-btn on" id="btnQ" onclick="setMode('Q')">🗓 季度</button>
+      <button class="mt-btn" id="btnM" onclick="setMode('M')">📅 月度</button>
+    </div>
+    <div class="pnav">
+      <button class="parr" id="btnPrev" onclick="shift(-1)">◀</button>
+      <div class="plbl"><div class="plbl-main" id="pMain">—</div><div class="plbl-sub" id="pSub">—</div></div>
+      <button class="parr" id="btnNext" onclick="shift(1)">▶</button>
+    </div>
+    <div class="qs" id="qs"></div>
+    <div class="cpills">
+      <div class="cpill">上一期 <span class="cv" id="cPrev">—</span></div>
+      <div class="cpill">去年同期 <span class="cv" id="cYoy">—</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="notice" id="nb"></div>
+
+  <!-- AI Panel -->
+  <div class="ai-panel" id="aiPanel">
+    <div class="ai-header">
+      <div class="ai-title">
+        <span style="font-size:20px">🤖</span>
+        <div>
+          <h3>AI 營運分析助理</h3>
+          <div class="ai-period" id="aiPeriodLbl">—</div>
+        </div>
+      </div>
+      <button class="btn btn-ai" id="btnAI" onclick="runAI()">✨ 生成營運建議</button>
+      <button class="btn btn-nlm" onclick="exportNLM()">📓 NotebookLM</button>
+      <button class="btn btn-cfg" onclick="openSettings()" title="設定 Gemini API Key 及核定率">⚙️</button>
+    </div>
+    <div class="ai-body" id="aiBody">
+      <div class="ai-idle"><span>✨</span>點擊「生成營運建議」，AI 將自動分析本期數據並給出具體對策</div>
+    </div>
+    <!-- AI 問答對話框 -->
+    <div class="ai-chat" id="aiChat">
+      <div class="ai-chat-title">
+        <span>💬</span> 向 AI 提問
+        <span class="ai-chat-hint" id="chatHint">（請先在 ⚙️ 設定 Gemini API Key）</span>
+        <button onclick="clearChat()" style="margin-left:auto;background:none;border:1px solid #3f3f5a;color:#64748b;font-size:11px;padding:3px 9px;border-radius:99px;cursor:pointer;" title="清除對話">🗑 清除</button>
+      </div>
+      <div class="ai-chat-msgs" id="chatMsgs"></div>
+      <div class="ai-chat-input-row">
+        <div class="ai-chat-suggestions" id="chatSuggestions">
+          <button onclick="askSuggestion(this)">哪個院區成長最快？</button>
+          <button onclick="askSuggestion(this)">減重業務有哪些改善空間？</button>
+          <button onclick="askSuggestion(this)">下季健保人次目標應設多少？</button>
+          <button onclick="askSuggestion(this)">哪些院區需要重點關注？</button>
+          <button onclick="askSuggestion(this)">診所銷售如何提升？</button>
+        </div>
+        <div class="ai-chat-bar">
+          <textarea id="chatInput" placeholder="輸入問題，例如：三樹院區的減重業務如何改善？" rows="2"
+            onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter')sendChat()"></textarea>
+          <button id="chatSendBtn" onclick="sendChat()">送出<br><small>⌘↵</small></button>
+        </div>
+        <div class="ai-chat-status" id="chatStatus"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">📊 指標選擇</div>
+  <div class="mtabs" id="mtabs"></div>
+  <div class="sec">🎯 關鍵績效指標</div>
+  <div class="kgrid" id="kgrid"></div>
+  <div class="clinic-hdr">
+    <div class="sec" style="margin:0;flex:1">🏥 各院區排行</div>
+    <div class="vtabs" id="vtabs"></div>
+  </div>
+  <div class="cgrid" id="cgrid"></div>
+  <div class="sec" id="spSec">📅 季內月別細項</div>
+  <div class="spgrid" id="spgrid"></div>
+  <div class="sec">📈 各院區排行圖</div>
+  <div class="bwrap"><div class="bttl" id="bttl">—</div><div id="barea"></div></div>
+  <div class="sec">📈 KPI 趨勢走勢（全部期間）</div>
+  <div class="chart-outer">
+    <div class="chart-tabs" id="trendTabs"></div>
+    <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+  </div>
+  <div class="sec">🕸 院區多維對比（當期）</div>
+  <div class="chart-outer two-col">
+    <div class="chart-wrap half"><canvas id="radarChart"></canvas></div>
+    <div class="chart-wrap half"><canvas id="clinicBarChart"></canvas></div>
+  </div>
+  <div class="sec">📋 完整比較表（上一期 × 去年同期）</div>
+  <div class="tbwrap"><table class="ctbl" id="ctbl"></table></div>
+</div>
+
+<script>
+const API='https://script.google.com/macros/s/AKfycbz_kVK2CsuvnwtPb2LET_aGz8NaMQ-zPUSPwu6yiRPR826hFlBzyn7z2gS8vMniRta-Lg/exec';
+const STATIC=[{"日期":"2024-01-01","院區":"鶯歌院區","健保人次":10079,"健保點數":3179663.0,"減重人次":152,"診所銷售金額":67354,"OTC銷售金額":23600,"初診":401.0,"複診":9637.0,"藥局總申報件數":10153.0,"藥局申報點值":1447074.0},{"日期":"2024-01-01","院區":"三樹院區","健保人次":7791,"健保點數":2428463.0,"減重人次":1032,"診所銷售金額":341970,"OTC銷售金額":61680,"初診":408.0,"複診":7339.0,"藥局總申報件數":7687.0,"藥局申報點值":1053977.0},{"日期":"2024-01-01","院區":"樹林院區","健保人次":7088,"健保點數":2215285.0,"減重人次":1069,"診所銷售金額":71250,"OTC銷售金額":3920,"初診":1140.0,"複診":5889.0,"藥局總申報件數":6919.0,"藥局申報點值":1021190.0},{"日期":"2024-01-01","院區":"桃園院區","健保人次":4731,"健保點數":1720819.0,"減重人次":244,"診所銷售金額":92431,"OTC銷售金額":9240,"初診":1093.0,"複診":3625.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-01-01","院區":"土城院區","健保人次":3878,"健保點數":1329265.0,"減重人次":438,"診所銷售金額":184420,"OTC銷售金額":14520,"初診":597.0,"複診":3249.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-01-01","院區":"八德院區","健保人次":5357,"健保點數":1224047.0,"減重人次":121,"診所銷售金額":51251,"OTC銷售金額":9720,"初診":789.0,"複診":4525.0,"藥局總申報件數":5569.0,"藥局申報點值":677438.0},{"日期":"2024-02-01","院區":"鶯歌院區","健保人次":8885,"健保點數":2911731.0,"減重人次":226,"診所銷售金額":42575,"OTC銷售金額":14160,"初診":411.0,"複診":8445.0,"藥局總申報件數":9067.0,"藥局申報點值":1283686.0},{"日期":"2024-02-01","院區":"三樹院區","健保人次":6422,"健保點數":2065626.0,"減重人次":1067,"診所銷售金額":334240,"OTC銷售金額":75960,"初診":450.0,"複診":5938.0,"藥局總申報件數":6333.0,"藥局申報點值":865548.0},{"日期":"2024-02-01","院區":"樹林院區","健保人次":6023,"健保點數":1997434.0,"減重人次":1004,"診所銷售金額":172550,"OTC銷售金額":25620,"初診":1060.0,"複診":4932.0,"藥局總申報件數":5966.0,"藥局申報點值":888599.0},{"日期":"2024-02-01","院區":"桃園院區","健保人次":4083,"健保點數":1581654.0,"減重人次":246,"診所銷售金額":71395,"OTC銷售金額":17160,"初診":1078.0,"複診":2993.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-02-01","院區":"土城院區","健保人次":3602,"健保點數":1243363.0,"減重人次":516,"診所銷售金額":167160,"OTC銷售金額":9830,"初診":651.0,"複診":2921.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-02-01","院區":"八德院區","健保人次":4557,"健保點數":1397414.0,"減重人次":150,"診所銷售金額":76117,"OTC銷售金額":22120,"初診":737.0,"複診":3793.0,"藥局總申報件數":4550.0,"藥局申報點值":553853.0},{"日期":"2024-03-01","院區":"鶯歌院區","健保人次":9376,"健保點數":3088948.0,"減重人次":155,"診所銷售金額":44300,"OTC銷售金額":16190,"初診":365.0,"複診":8970.0,"藥局總申報件數":9512.0,"藥局申報點值":1357070.0},{"日期":"2024-03-01","院區":"三樹院區","健保人次":6779,"健保點數":2267448.0,"減重人次":848,"診所銷售金額":173150,"OTC銷售金額":30410,"初診":363.0,"複診":6367.0,"藥局總申報件數":6705.0,"藥局申報點值":954659.0},{"日期":"2024-03-01","院區":"樹林院區","健保人次":6300,"健保點數":2292346.0,"減重人次":824,"診所銷售金額":157500,"OTC銷售金額":24070,"初診":905.0,"複診":5357.0,"藥局總申報件數":6201.0,"藥局申報點值":977035.0},{"日期":"2024-03-01","院區":"桃園院區","健保人次":4296,"健保點數":1688795.0,"減重人次":207,"診所銷售金額":32950,"OTC銷售金額":9090,"初診":828.0,"複診":3452.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-03-01","院區":"土城院區","健保人次":3640,"健保點數":1566702.0,"減重人次":297,"診所銷售金額":88850,"OTC銷售金額":13190,"初診":467.0,"複診":3143.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-03-01","院區":"八德院區","健保人次":5177,"健保點數":1649458.0,"減重人次":99,"診所銷售金額":76300,"OTC銷售金額":23180,"初診":570.0,"複診":4581.0,"藥局總申報件數":5155.0,"藥局申報點值":704320.0},{"日期":"2024-04-01","院區":"鶯歌院區","健保人次":8418,"健保點數":2810726.0,"減重人次":192,"診所銷售金額":49400,"OTC銷售金額":16860,"初診":329.0,"複診":8049.0,"藥局總申報件數":8571.0,"藥局申報點值":1300801.0},{"日期":"2024-04-01","院區":"三樹院區","健保人次":6149,"健保點數":2097100.0,"減重人次":927,"診所銷售金額":170100,"OTC銷售金額":44600,"初診":287.0,"複診":5827.0,"藥局總申報件數":6067.0,"藥局申報點值":908101.0},{"日期":"2024-04-01","院區":"樹林院區","健保人次":5498,"健保點數":1995231.0,"減重人次":900,"診所銷售金額":190460,"OTC銷售金額":14640,"初診":753.0,"複診":4717.0,"藥局總申報件數":5456.0,"藥局申報點值":880074.0},{"日期":"2024-04-01","院區":"桃園院區","健保人次":3908,"健保點數":1569766.0,"減重人次":200,"診所銷售金額":48750,"OTC銷售金額":0,"初診":795.0,"複診":3105.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-04-01","院區":"土城院區","健保人次":3209,"健保點數":1509513.0,"減重人次":356,"診所銷售金額":84350,"OTC銷售金額":8620,"初診":416.0,"複診":2756.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-04-01","院區":"八德院區","健保人次":4647,"健保點數":1547447.0,"減重人次":138,"診所銷售金額":95450,"OTC銷售金額":15010,"初診":1173.0,"複診":4057.0,"藥局總申報件數":4648.0,"藥局申報點值":656029.0},{"日期":"2024-05-01","院區":"鶯歌院區","健保人次":9259,"健保點數":3003628.0,"減重人次":247,"診所銷售金額":73650,"OTC銷售金額":41960,"初診":303.0,"複診":8889.0,"藥局總申報件數":9331.0,"藥局申報點值":1416591.0},{"日期":"2024-05-01","院區":"三樹院區","健保人次":6357,"健保點數":2202621.0,"減重人次":847,"診所銷售金額":150050,"OTC銷售金額":51230,"初診":264.0,"複診":6060.0,"藥局總申報件數":6339.0,"藥局申報點值":974936.0},{"日期":"2024-05-01","院區":"樹林院區","健保人次":5728,"健保點數":2092315.0,"減重人次":919,"診所銷售金額":221720,"OTC銷售金額":13080,"初診":690.0,"複診":5002.0,"藥局總申報件數":5670.0,"藥局申報點值":913021.0},{"日期":"2024-05-01","院區":"桃園院區","健保人次":4453,"健保點數":1935875.0,"減重人次":196,"診所銷售金額":51150,"OTC銷售金額":6370,"初診":998.0,"複診":3430.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-05-01","院區":"土城院區","健保人次":3332,"健保點數":1528195.0,"減重人次":368,"診所銷售金額":75150,"OTC銷售金額":15620,"初診":399.0,"複診":2912.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-05-01","院區":"八德院區","健保人次":5424,"健保點數":1994986.0,"減重人次":151,"診所銷售金額":60900,"OTC銷售金額":13700,"初診":2609.0,"複診":2789.0,"藥局總申報件數":5445.0,"藥局申報點值":851686.0},{"日期":"2024-05-01","院區":"龍潭院區","健保人次":1138,"健保點數":377261.0,"減重人次":60,"診所銷售金額":27500,"OTC銷售金額":9900,"初診":246.0,"複診":891.0,"藥局總申報件數":1114.0,"藥局申報點值":163863.0},{"日期":"2024-06-01","院區":"鶯歌院區","健保人次":9445,"健保點數":3013834.0,"減重人次":198,"診所銷售金額":75500,"OTC銷售金額":26740,"初診":433.0,"複診":8957.0,"藥局總申報件數":9553.0,"藥局申報點值":1425692.0},{"日期":"2024-06-01","院區":"三樹院區","健保人次":6595,"健保點數":2207086.0,"減重人次":937,"診所銷售金額":184750,"OTC銷售金額":59820,"初診":321.0,"複診":6235.0,"藥局總申報件數":6560.0,"藥局申報點值":994633.0},{"日期":"2024-06-01","院區":"樹林院區","健保人次":6048,"健保點數":2153535.0,"減重人次":910,"診所銷售金額":145050,"OTC銷售金額":18020,"初診":929.0,"複診":5095.0,"藥局總申報件數":6011.0,"藥局申報點值":911689.0},{"日期":"2024-06-01","院區":"桃園院區","健保人次":4973,"健保點數":2112677.0,"減重人次":192,"診所銷售金額":48200,"OTC銷售金額":5410,"初診":1226.0,"複診":3735.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-06-01","院區":"土城院區","健保人次":3611,"健保點數":1625466.0,"減重人次":390,"診所銷售金額":89750,"OTC銷售金額":11510,"初診":453.0,"複診":3134.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-06-01","院區":"八德院區","健保人次":6044,"健保點數":2196727.0,"減重人次":134,"診所銷售金額":87200,"OTC銷售金額":25400,"初診":2472.0,"複診":3539.0,"藥局總申報件數":6095.0,"藥局申報點值":935337.0},{"日期":"2024-06-01","院區":"龍潭院區","健保人次":2780,"健保點數":680444.0,"減重人次":112,"診所銷售金額":40100,"OTC銷售金額":16130,"初診":1615.0,"複診":1150.0,"藥局總申報件數":2776.0,"藥局申報點值":408093.0},{"日期":"2024-07-01","院區":"鶯歌院區","健保人次":8926,"健保點數":2914494.0,"減重人次":230,"診所銷售金額":71000,"OTC銷售金額":28060,"初診":357.0,"複診":8492.0,"藥局總申報件數":9057.0,"藥局申報點值":1396506.0},{"日期":"2024-07-01","院區":"三樹院區","健保人次":6263,"健保點數":2117183.0,"減重人次":886,"診所銷售金額":130750,"OTC銷售金額":59920,"初診":331.0,"複診":5877.0,"藥局總申報件數":6277.0,"藥局申報點值":981673.0},{"日期":"2024-07-01","院區":"樹林院區","健保人次":5390,"健保點數":1994288.0,"減重人次":836,"診所銷售金額":132650,"OTC銷售金額":27710,"初診":775.0,"複診":4586.0,"藥局總申報件數":5304.0,"藥局申報點值":867338.0},{"日期":"2024-07-01","院區":"桃園院區","健保人次":4907,"健保點數":2094869.0,"減重人次":198,"診所銷售金額":62250,"OTC銷售金額":7570,"初診":1130.0,"複診":3743.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-07-01","院區":"土城院區","健保人次":3581,"健保點數":1626633.0,"減重人次":450,"診所銷售金額":102550,"OTC銷售金額":16750,"初診":428.0,"複診":3128.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-07-01","院區":"八德院區","健保人次":5914,"健保點數":2163964.0,"減重人次":151,"診所銷售金額":70700,"OTC銷售金額":24390,"初診":2039.0,"複診":3844.0,"藥局總申報件數":5932.0,"藥局申報點值":925279.0},{"日期":"2024-07-01","院區":"龍潭院區","健保人次":3203,"健保點數":1028514.0,"減重人次":139,"診所銷售金額":45250,"OTC銷售金額":18490,"初診":1326.0,"複診":1861.0,"藥局總申報件數":3241.0,"藥局申報點值":469904.0},{"日期":"2024-08-01","院區":"鶯歌院區","健保人次":8213,"健保點數":2797459.0,"減重人次":241,"診所銷售金額":69990,"OTC銷售金額":39010,"初診":299.0,"複診":7859.0,"藥局總申報件數":8428.0,"藥局申報點值":1366689.0},{"日期":"2024-08-01","院區":"三樹院區","健保人次":5562,"健保點數":2067185.0,"減重人次":929,"診所銷售金額":185890,"OTC銷售金額":90110,"初診":225.0,"複診":5296.0,"藥局總申報件數":5649.0,"藥局申報點值":931192.0},{"日期":"2024-08-01","院區":"樹林院區","健保人次":5167,"健保點數":1989218.0,"減重人次":812,"診所銷售金額":129480,"OTC銷售金額":24810,"初診":650.0,"複診":4484.0,"藥局總申報件數":5097.0,"藥局申報點值":854839.0},{"日期":"2024-08-01","院區":"桃園院區","健保人次":4815,"健保點數":2307954.0,"減重人次":270,"診所銷售金額":55820,"OTC銷售金額":18480,"初診":1167.0,"複診":3618.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-08-01","院區":"土城院區","健保人次":3393,"健保點數":1592009.0,"減重人次":445,"診所銷售金額":112290,"OTC銷售金額":11800,"初診":320.0,"複診":3024.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-08-01","院區":"八德院區","健保人次":5560,"健保點數":2133249.0,"減重人次":198,"診所銷售金額":82130,"OTC銷售金額":30760,"初診":1587.0,"複診":3937.0,"藥局總申報件數":5600.0,"藥局申報點值":889592.0},{"日期":"2024-08-01","院區":"龍潭院區","健保人次":3386,"健保點數":1120680.0,"減重人次":222,"診所銷售金額":74850,"OTC銷售金額":16720,"初診":1210.0,"複診":2161.0,"藥局總申報件數":3383.0,"藥局申報點值":514515.0},{"日期":"2024-09-01","院區":"鶯歌院區","健保人次":8723,"健保點數":2984914.0,"減重人次":266,"診所銷售金額":81240,"OTC銷售金額":39080,"初診":271.0,"複診":8407.0,"藥局總申報件數":8972.0,"藥局申報點值":1465399.0},{"日期":"2024-09-01","院區":"三樹院區","健保人次":6093,"健保點數":2051647.0,"減重人次":845,"診所銷售金額":133290,"OTC銷售金額":60190,"初診":237.0,"複診":5802.0,"藥局總申報件數":6125.0,"藥局申報點值":992304.0},{"日期":"2024-09-01","院區":"樹林院區","健保人次":5492,"健保點數":2064885.0,"減重人次":812,"診所銷售金額":155160,"OTC銷售金額":20480,"初診":637.0,"複診":4796.0,"藥局總申報件數":5389.0,"藥局申報點值":873768.0},{"日期":"2024-09-01","院區":"桃園院區","健保人次":5137,"健保點數":2401387.0,"減重人次":256,"診所銷售金額":51690,"OTC銷售金額":10720,"初診":1199.0,"複診":3919.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-09-01","院區":"土城院區","健保人次":3666,"健保點數":1650191.0,"減重人次":438,"診所銷售金額":87340,"OTC銷售金額":26950,"初診":338.0,"複診":3290.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-09-01","院區":"八德院區","健保人次":6389,"健保點數":2258259.0,"減重人次":167,"診所銷售金額":72870,"OTC銷售金額":42860,"初診":1745.0,"複診":4611.0,"藥局總申報件數":6368.0,"藥局申報點值":970503.0},{"日期":"2024-09-01","院區":"龍潭院區","健保人次":3949,"健保點數":1234784.0,"減重人次":241,"診所銷售金額":79800,"OTC銷售金額":6770,"初診":1254.0,"複診":2660.0,"藥局總申報件數":3953.0,"藥局申報點值":588784.0},{"日期":"2024-09-01","院區":"大溪院區","健保人次":2503,"健保點數":670143.0,"減重人次":85,"診所銷售金額":58850,"OTC銷售金額":9820,"初診":1505.0,"複診":977.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-10-01","院區":"鶯歌院區","健保人次":8251,"健保點數":2818608.0,"減重人次":293,"診所銷售金額":93150,"OTC銷售金額":41380,"初診":241.0,"複診":7945.0,"藥局總申報件數":8543.0,"藥局申報點值":1421731.0},{"日期":"2024-10-01","院區":"三樹院區","健保人次":5864,"健保點數":1989027.0,"減重人次":816,"診所銷售金額":154330,"OTC銷售金額":66590,"初診":700.0,"複診":5131.0,"藥局總申報件數":5856.0,"藥局申報點值":929675.0},{"日期":"2024-10-01","院區":"樹林院區","健保人次":5774,"健保點數":2093906.0,"減重人次":802,"診所銷售金額":139210,"OTC銷售金額":20960,"初診":709.0,"複診":5037.0,"藥局總申報件數":5547.0,"藥局申報點值":893721.0},{"日期":"2024-10-01","院區":"桃園院區","健保人次":5271,"健保點數":2406581.0,"減重人次":276,"診所銷售金額":93540,"OTC銷售金額":12490,"初診":1223.0,"複診":4025.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-10-01","院區":"土城院區","健保人次":3599,"健保點數":1642882.0,"減重人次":513,"診所銷售金額":107270,"OTC銷售金額":22460,"初診":323.0,"複診":3247.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-10-01","院區":"八德院區","健保人次":6487,"健保點數":2422325.0,"減重人次":166,"診所銷售金額":49850,"OTC銷售金額":12420,"初診":1675.0,"複診":4774.0,"藥局總申報件數":6462.0,"藥局申報點值":1041749.0},{"日期":"2024-10-01","院區":"龍潭院區","健保人次":3675,"健保點數":1161551.0,"減重人次":265,"診所銷售金額":94300,"OTC銷售金額":14500,"初診":979.0,"複診":2659.0,"藥局總申報件數":3731.0,"藥局申報點值":586578.0},{"日期":"2024-10-01","院區":"大溪院區","健保人次":3659,"健保點數":1052677.0,"減重人次":87,"診所銷售金額":46240,"OTC銷售金額":12540,"初診":1691.0,"複診":1955.0,"藥局總申報件數":2904.0,"藥局申報點值":458684.0},{"日期":"2024-11-01","院區":"鶯歌院區","健保人次":8470,"健保點數":2923993.0,"減重人次":288,"診所銷售金額":86820,"OTC銷售金額":36400,"初診":266.0,"複診":8156.0,"藥局總申報件數":8945.0,"藥局申報點值":1525898.0},{"日期":"2024-11-01","院區":"三樹院區","健保人次":6016,"健保點數":1899255.0,"減重人次":888,"診所銷售金額":209470,"OTC銷售金額":59090,"初診":819.0,"複診":5151.0,"藥局總申報件數":6070.0,"藥局申報點值":1009841.0},{"日期":"2024-11-01","院區":"樹林院區","健保人次":5829,"健保點數":2107108.0,"減重人次":627,"診所銷售金額":120840,"OTC銷售金額":22570,"初診":713.0,"複診":5088.0,"藥局總申報件數":5694.0,"藥局申報點值":944707.0},{"日期":"2024-11-01","院區":"桃園院區","健保人次":5687,"健保點數":2591524.0,"減重人次":315,"診所銷售金額":73330,"OTC銷售金額":17550,"初診":1195.0,"複診":4475.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-11-01","院區":"土城院區","健保人次":3787,"健保點數":832261.0,"減重人次":501,"診所銷售金額":129160,"OTC銷售金額":9110,"初診":1163.0,"複診":582.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-11-01","院區":"八德院區","健保人次":6916,"健保點數":2540931.0,"減重人次":176,"診所銷售金額":60650,"OTC銷售金額":18650,"初診":1537.0,"複診":5335.0,"藥局總申報件數":6988.0,"藥局申報點值":1126546.0},{"日期":"2024-11-01","院區":"龍潭院區","健保人次":4376,"健保點數":1291425.0,"減重人次":292,"診所銷售金額":109100,"OTC銷售金額":18270,"初診":1177.0,"複診":3169.0,"藥局總申報件數":4395.0,"藥局申報點值":761529.0},{"日期":"2024-11-01","院區":"大溪院區","健保人次":4362,"健保點數":1359384.0,"減重人次":115,"診所銷售金額":55270,"OTC銷售金額":18110,"初診":1535.0,"複診":2797.0,"藥局總申報件數":4546.0,"藥局申報點值":715066.0},{"日期":"2024-12-01","院區":"鶯歌院區","健保人次":10159,"健保點數":3251033.0,"減重人次":282,"診所銷售金額":85500,"OTC銷售金額":29510,"初診":334.0,"複診":9761.0,"藥局總申報件數":10614.0,"藥局申報點值":1742544.0},{"日期":"2024-12-01","院區":"三樹院區","健保人次":7270,"健保點數":2245892.0,"減重人次":839,"診所銷售金額":179660,"OTC銷售金額":77580,"初診":789.0,"複診":6441.0,"藥局總申報件數":7343.0,"藥局申報點值":1209677.0},{"日期":"2024-12-01","院區":"樹林院區","健保人次":6933,"健保點數":2354881.0,"減重人次":809,"診所銷售金額":156530,"OTC銷售金額":18850,"初診":793.0,"複診":6079.0,"藥局總申報件數":6806.0,"藥局申報點值":1073090.0},{"日期":"2024-12-01","院區":"桃園院區","健保人次":6584,"健保點數":2919082.0,"減重人次":292,"診所銷售金額":37780,"OTC銷售金額":10420,"初診":1273.0,"複診":5277.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-12-01","院區":"土城院區","健保人次":4490,"健保點數":2094241.0,"減重人次":457,"診所銷售金額":100480,"OTC銷售金額":21550,"初診":1704.0,"複診":2746.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2024-12-01","院區":"八德院區","健保人次":8319,"健保點數":3248245.0,"減重人次":196,"診所銷售金額":77080,"OTC銷售金額":24740,"初診":1758.0,"複診":6508.0,"藥局總申報件數":8401.0,"藥局申報點值":1331272.0},{"日期":"2024-12-01","院區":"龍潭院區","健保人次":5300,"健保點數":1358594.0,"減重人次":291,"診所銷售金額":129720,"OTC銷售金額":15620,"初診":1235.0,"複診":4037.0,"藥局總申報件數":5461.0,"藥局申報點值":962188.0},{"日期":"2024-12-01","院區":"大溪院區","健保人次":4707,"健保點數":1416748.0,"減重人次":112,"診所銷售金額":63960,"OTC銷售金額":14180,"初診":1380.0,"複診":3312.0,"藥局總申報件數":4920.0,"藥局申報點值":803804.0},{"日期":"2025-01-01","院區":"鶯歌院區","健保人次":11021,"健保點數":3026203.0,"減重人次":241,"診所銷售金額":82551,"OTC銷售金額":56440,"初診":1224.0,"複診":8736.0,"藥局總申報件數":11648.0,"藥局申報點值":1818701.0},{"日期":"2025-01-01","院區":"三樹院區","健保人次":7764,"健保點數":2345134.0,"減重人次":898,"診所銷售金額":344746,"OTC銷售金額":82320,"初診":999.0,"複診":6712.0,"藥局總申報件數":8029.0,"藥局申報點值":1363027.0},{"日期":"2025-01-01","院區":"樹林院區","健保人次":7064,"健保點數":2422010.0,"減重人次":807,"診所銷售金額":165360,"OTC銷售金額":20970,"初診":943.0,"複診":6064.0,"藥局總申報件數":6826.0,"藥局申報點值":1058635.0},{"日期":"2025-01-01","院區":"桃園院區","健保人次":7347,"健保點數":3273639.0,"減重人次":261,"診所銷售金額":66103,"OTC銷售金額":28500,"初診":1449.0,"複診":5877.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-01-01","院區":"土城院區","健保人次":5081,"健保點數":1944111.0,"減重人次":452,"診所銷售金額":58310,"OTC銷售金額":80960,"初診":1811.0,"複診":3227.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-01-01","院區":"八德院區","健保人次":9950,"健保點數":3623084.0,"減重人次":226,"診所銷售金額":83980,"OTC銷售金額":17720,"初診":2469.0,"複診":7424.0,"藥局總申報件數":9906.0,"藥局申報點值":1533121.0},{"日期":"2025-01-01","院區":"龍潭院區","健保人次":5558,"健保點數":1735875.0,"減重人次":311,"診所銷售金額":136980,"OTC銷售金額":29490,"初診":1414.0,"複診":4123.0,"藥局總申報件數":5672.0,"藥局申報點值":1003138.0},{"日期":"2025-01-01","院區":"大溪院區","健保人次":5047,"健保點數":1824005.0,"減重人次":99,"診所銷售金額":49680,"OTC銷售金額":11330,"初診":1533.0,"複診":3468.0,"藥局總申報件數":5386.0,"藥局申報點值":910959.0},{"日期":"2025-01-01","院區":"大竹院區","健保人次":1741,"健保點數":451712.0,"減重人次":13,"診所銷售金額":4800,"OTC銷售金額":5870,"初診":1276.0,"複診":460.0,"藥局總申報件數":1680.0,"藥局申報點值":256041.0},{"日期":"2025-02-01","院區":"鶯歌院區","健保人次":9870,"健保點數":3212812.0,"減重人次":195,"診所銷售金額":182528,"OTC銷售金額":83840,"初診":1085.0,"複診":8742.0,"藥局總申報件數":10588.0,"藥局申報點值":1770674.0},{"日期":"2025-02-01","院區":"三樹院區","健保人次":6909,"健保點數":2113938.0,"減重人次":773,"診所銷售金額":256331,"OTC銷售金額":58200,"初診":932.0,"複診":5939.0,"藥局總申報件數":7316.0,"藥局申報點值":1250884.0},{"日期":"2025-02-01","院區":"樹林院區","健保人次":6296,"健保點數":2250170.0,"減重人次":709,"診所銷售金額":131185,"OTC銷售金額":25140,"初診":1005.0,"複診":5251.0,"藥局總申報件數":6229.0,"藥局申報點值":1016418.0},{"日期":"2025-02-01","院區":"桃園院區","健保人次":7097,"健保點數":3237103.0,"減重人次":274,"診所銷售金額":73645,"OTC銷售金額":17560,"初診":1462.0,"複診":5612.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-02-01","院區":"土城院區","健保人次":4790,"健保點數":1995421.0,"減重人次":383,"診所銷售金額":84880,"OTC銷售金額":19220,"初診":1587.0,"複診":3174.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-02-01","院區":"八德院區","健保人次":8831,"健保點數":3331394.0,"減重人次":192,"診所銷售金額":63160,"OTC銷售金額":16170,"初診":2289.0,"複診":6505.0,"藥局總申報件數":9091.0,"藥局申報點值":1533137.0},{"日期":"2025-02-01","院區":"龍潭院區","健保人次":5060,"健保點數":1832788.0,"減重人次":248,"診所銷售金額":101220,"OTC銷售金額":22250,"初診":1330.0,"複診":3705.0,"藥局總申報件數":5251.0,"藥局申報點值":953233.0},{"日期":"2025-02-01","院區":"大溪院區","健保人次":5200,"健保點數":2017444.0,"減重人次":99,"診所銷售金額":43760,"OTC銷售金額":10790,"初診":1564.0,"複診":3593.0,"藥局總申報件數":5432.0,"藥局申報點值":950619.0},{"日期":"2025-02-01","院區":"大竹院區","健保人次":3587,"健保點數":1049065.0,"減重人次":45,"診所銷售金額":19980,"OTC銷售金額":14670,"初診":2015.0,"複診":1569.0,"藥局總申報件數":3572.0,"藥局申報點值":522698.0},{"日期":"2025-03-01","院區":"鶯歌院區","健保人次":10466,"健保點數":3325328.0,"減重人次":196,"診所銷售金額":92600,"OTC銷售金額":48340,"初診":868.0,"複診":9539.0,"藥局總申報件數":11158.0,"藥局申報點值":1938718.0},{"日期":"2025-03-01","院區":"三樹院區","健保人次":6781,"健保點數":2301504.0,"減重人次":979,"診所銷售金額":147840,"OTC銷售金額":72040,"初診":663.0,"複診":6091.0,"藥局總申報件數":6963.0,"藥局申報點值":1216657.0},{"日期":"2025-03-01","院區":"樹林院區","健保人次":6473,"健保點數":2358229.0,"減重人次":818,"診所銷售金額":162135,"OTC銷售金額":15440,"初診":808.0,"複診":5633.0,"藥局總申報件數":6570.0,"藥局申報點值":1109142.0},{"日期":"2025-03-01","院區":"桃園院區","健保人次":7319,"健保點數":3531870.0,"減重人次":306,"診所銷售金額":111280,"OTC銷售金額":19830,"初診":1309.0,"複診":5981.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-03-01","院區":"土城院區","健保人次":4687,"健保點數":2140191.0,"減重人次":480,"診所銷售金額":112720,"OTC銷售金額":40870,"初診":1231.0,"複診":3406.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-03-01","院區":"八德院區","健保人次":8883,"健保點數":2851038.0,"減重人次":260,"診所銷售金額":69580,"OTC銷售金額":25560,"初診":1821.0,"複診":7014.0,"藥局總申報件數":9069.0,"藥局申報點值":1543747.0},{"日期":"2025-03-01","院區":"龍潭院區","健保人次":5340,"健保點數":1930373.0,"減重人次":254,"診所銷售金額":92560,"OTC銷售金額":25500,"初診":1155.0,"複診":4125.0,"藥局總申報件數":5518.0,"藥局申報點值":9248.0},{"日期":"2025-03-01","院區":"大溪院區","健保人次":5906,"健保點數":2062347.0,"減重人次":132,"診所銷售金額":100200,"OTC銷售金額":23550,"初診":1428.0,"複診":4437.0,"藥局總申報件數":6231.0,"藥局申報點值":113123.0},{"日期":"2025-03-01","院區":"大竹院區","健保人次":3768,"健保點數":1352041.0,"減重人次":110,"診所銷售金額":47800,"OTC銷售金額":11660,"初診":1615.0,"複診":2136.0,"藥局總申報件數":3749.0,"藥局申報點值":568116.0},{"日期":"2025-04-01","院區":"鶯歌院區","健保人次":9276,"健保點數":3079487.0,"減重人次":240,"診所銷售金額":94400,"OTC銷售金額":29090,"初診":689.0,"複診":8546.0,"藥局總申報件數":10048.0,"藥局申報點值":1758629.0},{"日期":"2025-04-01","院區":"三樹院區","健保人次":6396,"健保點數":2161950.0,"減重人次":877,"診所銷售金額":189320,"OTC銷售金額":74600,"初診":617.0,"複診":5746.0,"藥局總申報件數":6695.0,"藥局申報點值":1165618.0},{"日期":"2025-04-01","院區":"樹林院區","健保人次":6106,"健保點數":2284581.0,"減重人次":833,"診所銷售金額":171835,"OTC銷售金額":23080,"初診":702.0,"複診":5373.0,"藥局總申報件數":6112.0,"藥局申報點值":1075144.0},{"日期":"2025-04-01","院區":"桃園院區","健保人次":6671,"健保點數":3317367.0,"減重人次":293,"診所銷售金額":95440,"OTC銷售金額":18910,"初診":1176.0,"複診":5477.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-04-01","院區":"土城院區","健保人次":4560,"健保點數":2083612.0,"減重人次":478,"診所銷售金額":91800,"OTC銷售金額":18160,"初診":1098.0,"複診":3416.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-04-01","院區":"八德院區","健保人次":8245,"健保點數":2810166.0,"減重人次":247,"診所銷售金額":56900,"OTC銷售金額":22380,"初診":1568.0,"複診":6641.0,"藥局總申報件數":8590.0,"藥局申報點值":1456603.0},{"日期":"2025-04-01","院區":"龍潭院區","健保人次":5149,"健保點數":1887393.0,"減重人次":255,"診所銷售金額":90080,"OTC銷售金額":30220,"初診":1059.0,"複診":4021.0,"藥局總申報件數":5318.0,"藥局申報點值":950671.0},{"日期":"2025-04-01","院區":"大溪院區","健保人次":5495,"健保點數":2052850.0,"減重人次":109,"診所銷售金額":80480,"OTC銷售金額":15250,"初診":1332.0,"複診":4117.0,"藥局總申報件數":5830.0,"藥局申報點值":1073596.0},{"日期":"2025-04-01","院區":"大竹院區","健保人次":3746,"健保點數":1335728.0,"減重人次":133,"診所銷售金額":35500,"OTC銷售金額":21620,"初診":1448.0,"複診":2275.0,"藥局總申報件數":3761.0,"藥局申報點值":583571.0},{"日期":"2025-05-01","院區":"鶯歌院區","健保人次":9758,"健保點數":3232491.0,"減重人次":248,"診所銷售金額":104980,"OTC銷售金額":35380,"初診":768.0,"複診":8954.0,"藥局總申報件數":10448.0,"藥局申報點值":1869411.0},{"日期":"2025-05-01","院區":"三樹院區","健保人次":6911,"健保點數":2397537.0,"減重人次":950,"診所銷售金額":139100,"OTC銷售金額":80100,"初診":651.0,"複診":6219.0,"藥局總申報件數":7076.0,"藥局申報點值":1194208.0},{"日期":"2025-05-01","院區":"樹林院區","健保人次":6135,"健保點數":2283017.0,"減重人次":865,"診所銷售金額":139415,"OTC銷售金額":34600,"初診":708.0,"複診":5407.0,"藥局總申報件數":6273.0,"藥局申報點值":1091108.0},{"日期":"2025-05-01","院區":"桃園院區","健保人次":6890,"健保點數":3624385.0,"減重人次":265,"診所銷售金額":77300,"OTC銷售金額":22612,"初診":1308.0,"複診":5554.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-05-01","院區":"土城院區","健保人次":4856,"健保點數":2196880.0,"減重人次":484,"診所銷售金額":136000,"OTC銷售金額":22780,"初診":1094.0,"複診":3714.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-05-01","院區":"八德院區","健保人次":7672,"健保點數":2071998.0,"減重人次":140,"診所銷售金額":66720,"OTC銷售金額":21320,"初診":1412.0,"複診":6225.0,"藥局總申報件數":7881.0,"藥局申報點值":1337975.0},{"日期":"2025-05-01","院區":"龍潭院區","健保人次":5478,"健保點數":2007451.0,"減重人次":261,"診所銷售金額":103700,"OTC銷售金額":30810,"初診":1212.0,"複診":4233.0,"藥局總申報件數":5700.0,"藥局申報點值":1023453.0},{"日期":"2025-05-01","院區":"大溪院區","健保人次":5925,"健保點數":2189412.0,"減重人次":125,"診所銷售金額":86040,"OTC銷售金額":27800,"初診":1187.0,"複診":4692.0,"藥局總申報件數":6195.0,"藥局申報點值":1123854.0},{"日期":"2025-05-01","院區":"大竹院區","健保人次":3993,"健保點數":1397568.0,"減重人次":152,"診所銷售金額":47920,"OTC銷售金額":13740,"初診":1329.0,"複診":2645.0,"藥局總申報件數":3975.0,"藥局申報點值":617369.0},{"日期":"2025-05-01","院區":"大湳院區","健保人次":2210,"健保點數":753677.0,"減重人次":294,"診所銷售金額":112140,"OTC銷售金額":10490,"初診":959.0,"複診":1231.0,"藥局總申報件數":2190.0,"藥局申報點值":349325.0},{"日期":"2025-06-01","院區":"鶯歌院區","健保人次":9516,"健保點數":3158610.0,"減重人次":260,"診所銷售金額":114820,"OTC銷售金額":29490,"初診":669.0,"複診":8807.0,"藥局總申報件數":10302.0,"藥局申報點值":1817146.0},{"日期":"2025-06-01","院區":"三樹院區","健保人次":6555,"健保點數":2317746.0,"減重人次":915,"診所銷售金額":163960,"OTC銷售金額":71140,"初診":553.0,"複診":5965.0,"藥局總申報件數":6750.0,"藥局申報點值":1150333.0},{"日期":"2025-06-01","院區":"樹林院區","健保人次":6065,"健保點數":2274447.0,"減重人次":903,"診所銷售金額":168640,"OTC銷售金額":26100,"初診":722.0,"複診":5313.0,"藥局總申報件數":6138.0,"藥局申報點值":1074821.0},{"日期":"2025-06-01","院區":"桃園院區","健保人次":6844,"健保點數":3375833.0,"減重人次":240,"診所銷售金額":76660,"OTC銷售金額":11300,"初診":1292.0,"複診":5526.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-06-01","院區":"土城院區","健保人次":4791,"健保點數":2225513.0,"減重人次":557,"診所銷售金額":149500,"OTC銷售金額":26020,"初診":1126.0,"複診":3639.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-06-01","院區":"八德院區","健保人次":7669,"健保點數":2443541.0,"減重人次":178,"診所銷售金額":114380,"OTC銷售金額":26310,"初診":1510.0,"複診":6111.0,"藥局總申報件數":7842.0,"藥局申報點值":1307531.0},{"日期":"2025-06-01","院區":"龍潭院區","健保人次":5568,"健保點數":2031004.0,"減重人次":268,"診所銷售金額":112560,"OTC銷售金額":26420,"初診":1150.0,"複診":4373.0,"藥局總申報件數":5849.0,"藥局申報點值":1020834.0},{"日期":"2025-06-01","院區":"大溪院區","健保人次":5609,"健保點數":2101801.0,"減重人次":153,"診所銷售金額":93560,"OTC銷售金額":20790,"初診":1102.0,"複診":4461.0,"藥局總申報件數":5873.0,"藥局申報點值":1113634.0},{"日期":"2025-06-01","院區":"大竹院區","健保人次":4105,"健保點數":1443765.0,"減重人次":160,"診所銷售金額":39520,"OTC銷售金額":16410,"初診":1337.0,"複診":2749.0,"藥局總申報件數":4102.0,"藥局申報點值":616573.0},{"日期":"2025-06-01","院區":"大湳院區","健保人次":2692,"健保點數":1052729.0,"減重人次":327,"診所銷售金額":122200,"OTC銷售金額":20080,"初診":1298.0,"複診":1381.0,"藥局總申報件數":2812.0,"藥局申報點值":464264.0},{"日期":"2025-07-01","院區":"鶯歌院區","健保人次":8170,"健保點數":2941363.0,"減重人次":268,"診所銷售金額":122800,"OTC銷售金額":38840,"初診":573.0,"複診":7550.0,"藥局總申報件數":8853.0,"藥局申報點值":1654343.0},{"日期":"2025-07-01","院區":"三樹院區","健保人次":5524,"健保點數":2148965.0,"減重人次":949,"診所銷售金額":200100,"OTC銷售金額":72360,"初診":526.0,"複診":4959.0,"藥局總申報件數":5781.0,"藥局申報點值":1016240.0},{"日期":"2025-07-01","院區":"樹林院區","健保人次":5444,"健保點數":2245218.0,"減重人次":987,"診所銷售金額":241475,"OTC銷售金額":27330,"初診":656.0,"複診":4760.0,"藥局總申報件數":5552.0,"藥局申報點值":1011686.0},{"日期":"2025-07-01","院區":"桃園院區","健保人次":5838,"健保點數":3071280.0,"減重人次":281,"診所銷售金額":111500,"OTC銷售金額":16780,"初診":940.0,"複診":4879.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-07-01","院區":"土城院區","健保人次":4538,"健保點數":2193030.0,"減重人次":609,"診所銷售金額":211320,"OTC銷售金額":35320,"初診":878.0,"複診":3609.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-07-01","院區":"八德院區","健保人次":6554,"健保點數":2242946.0,"減重人次":214,"診所銷售金額":140700,"OTC銷售金額":15230,"初診":1219.0,"複診":5302.0,"藥局總申報件數":6729.0,"藥局申報點值":1146595.0},{"日期":"2025-07-01","院區":"龍潭院區","健保人次":5117,"健保點數":2034347.0,"減重人次":249,"診所銷售金額":132640,"OTC銷售金額":26820,"初診":997.0,"複診":4092.0,"藥局總申報件數":5404.0,"藥局申報點值":987219.0},{"日期":"2025-07-01","院區":"大溪院區","健保人次":4815,"健保點數":1920999.0,"減重人次":148,"診所銷售金額":115580,"OTC銷售金額":18170,"初診":895.0,"複診":3890.0,"藥局總申報件數":5066.0,"藥局申報點值":995681.0},{"日期":"2025-07-01","院區":"大竹院區","健保人次":3402,"健保點數":1250521.0,"減重人次":151,"診所銷售金額":63480,"OTC銷售金額":17390,"初診":986.0,"複診":2389.0,"藥局總申報件數":3412.0,"藥局申報點值":542023.0},{"日期":"2025-07-01","院區":"大湳院區","健保人次":2423,"健保點數":963955.0,"減重人次":466,"診所銷售金額":168860,"OTC銷售金額":20970,"初診":882.0,"複診":1535.0,"藥局總申報件數":2584.0,"藥局申報點值":426421.0},{"日期":"2025-08-01","院區":"鶯歌院區","健保人次":7902,"健保點數":2908406.0,"減重人次":278,"診所銷售金額":127520,"OTC銷售金額":51380,"初診":602.0,"複診":7254.0,"藥局總申報件數":8506.0,"藥局申報點值":1586765.0},{"日期":"2025-08-01","院區":"三樹院區","健保人次":5349,"健保點數":2177925.0,"減重人次":1007,"診所銷售金額":358820,"OTC銷售金額":61710,"初診":532.0,"複診":4774.0,"藥局總申報件數":5510.0,"藥局申報點值":995461.0},{"日期":"2025-08-01","院區":"樹林院區","健保人次":5284,"健保點數":2130789.0,"減重人次":1028,"診所銷售金額":233660,"OTC銷售金額":21970,"初診":590.0,"複診":4659.0,"藥局總申報件數":5338.0,"藥局申報點值":962323.0},{"日期":"2025-08-01","院區":"桃園院區","健保人次":6063,"健保點數":3250401.0,"減重人次":282,"診所銷售金額":96920,"OTC銷售金額":27790,"初診":1080.0,"複診":4958.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-08-01","院區":"土城院區","健保人次":4549,"健保點數":2233353.0,"減重人次":654,"診所銷售金額":257800,"OTC銷售金額":28130,"初診":930.0,"複診":3572.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-08-01","院區":"八德院區","健保人次":6972,"健保點數":2371717.0,"減重人次":223,"診所銷售金額":125120,"OTC銷售金額":24200,"初診":1316.0,"複診":5628.0,"藥局總申報件數":7021.0,"藥局申報點值":1175057.0},{"日期":"2025-08-01","院區":"龍潭院區","健保人次":5216,"健保點數":2079013.0,"減重人次":319,"診所銷售金額":162040,"OTC銷售金額":25930,"初診":1031.0,"複診":4144.0,"藥局總申報件數":5432.0,"藥局申報點值":961118.0},{"日期":"2025-08-01","院區":"大溪院區","健保人次":5094,"健保點數":2024710.0,"減重人次":185,"診所銷售金額":166420,"OTC銷售金額":22340,"初診":908.0,"複診":4158.0,"藥局總申報件數":5367.0,"藥局申報點值":1060307.0},{"日期":"2025-08-01","院區":"大竹院區","健保人次":3552,"健保點數":1379937.0,"減重人次":175,"診所銷售金額":88340,"OTC銷售金額":14990,"初診":962.0,"複診":2555.0,"藥局總申報件數":3530.0,"藥局申報點值":571211.0},{"日期":"2025-08-01","院區":"大湳院區","健保人次":2634,"健保點數":1004845.0,"減重人次":490,"診所銷售金額":219520,"OTC銷售金額":33650,"初診":899.0,"複診":1726.0,"藥局總申報件數":2727.0,"藥局申報點值":418260.0},{"日期":"2025-09-01","院區":"鶯歌院區","健保人次":8692,"健保點數":3141235.0,"減重人次":266,"診所銷售金額":117680,"OTC銷售金額":40290,"初診":573.0,"複診":8071.0,"藥局總申報件數":9311.0,"藥局申報點值":1715987.0},{"日期":"2025-09-01","院區":"三樹院區","健保人次":5856,"健保點數":2305696.0,"減重人次":956,"診所銷售金額":484260,"OTC銷售金額":68500,"初診":516.0,"複診":5312.0,"藥局總申報件數":6058.0,"藥局申報點值":1069551.0},{"日期":"2025-09-01","院區":"樹林院區","健保人次":5612,"健保點數":2189134.0,"減重人次":1174,"診所銷售金額":285190,"OTC銷售金額":25910,"初診":589.0,"複診":4996.0,"藥局總申報件數":5685.0,"藥局申報點值":1008238.0},{"日期":"2025-09-01","院區":"桃園院區","健保人次":6442,"健保點數":3367555.0,"減重人次":323,"診所銷售金額":88880,"OTC銷售金額":19870,"初診":1030.0,"複診":5393.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-09-01","院區":"土城院區","健保人次":4913,"健保點數":2368191.0,"減重人次":676,"診所銷售金額":252320,"OTC銷售金額":34930,"初診":900.0,"複診":3962.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-09-01","院區":"八德院區","健保人次":7543,"健保點數":2397202.0,"減重人次":224,"診所銷售金額":95040,"OTC銷售金額":12480,"初診":1136.0,"複診":6362.0,"藥局總申報件數":7585.0,"藥局申報點值":1232252.0},{"日期":"2025-09-01","院區":"龍潭院區","健保人次":5845,"健保點數":2248468.0,"減重人次":312,"診所銷售金額":154600,"OTC銷售金額":24370,"初診":1095.0,"複診":4698.0,"藥局總申報件數":6096.0,"藥局申報點值":1059061.0},{"日期":"2025-09-01","院區":"大溪院區","健保人次":5593,"健保點數":2207524.0,"減重人次":181,"診所銷售金額":153780,"OTC銷售金額":19770,"初診":858.0,"複診":4709.0,"藥局總申報件數":5907.0,"藥局申報點值":1164877.0},{"日期":"2025-09-01","院區":"大竹院區","健保人次":3918,"健保點數":1428173.0,"減重人次":218,"診所銷售金額":103060,"OTC銷售金額":13980,"初診":922.0,"複診":2965.0,"藥局總申報件數":3885.0,"藥局申報點值":603056.0},{"日期":"2025-09-01","院區":"大湳院區","健保人次":3169,"健保點數":1167961.0,"減重人次":506,"診所銷售金額":218640,"OTC銷售金額":35790,"初診":1024.0,"複診":2130.0,"藥局總申報件數":3271.0,"藥局申報點值":514823.0},{"日期":"2025-10-01","院區":"鶯歌院區","健保人次":9064,"健保點數":3186319.0,"減重人次":289,"診所銷售金額":148260,"OTC銷售金額":46650,"初診":616.0,"複診":8375.0,"藥局總申報件數":9758.0,"藥局申報點值":1758942.0},{"日期":"2025-10-01","院區":"三樹院區","健保人次":6473,"健保點數":2392561.0,"減重人次":901,"診所銷售金額":465780,"OTC銷售金額":86024,"初診":594.0,"複診":5839.0,"藥局總申報件數":6705.0,"藥局申報點值":1164602.0},{"日期":"2025-10-01","院區":"樹林院區","健保人次":6041,"健保點數":2264891.0,"減重人次":1041,"診所銷售金額":206595,"OTC銷售金額":27760,"初診":741.0,"複診":5264.0,"藥局總申報件數":5872.0,"藥局申報點值":1040049.0},{"日期":"2025-10-01","院區":"桃園院區","健保人次":6329,"健保點數":3348881.0,"減重人次":296,"診所銷售金額":149060,"OTC銷售金額":17997,"初診":1063.0,"複診":5240.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-10-01","院區":"土城院區","健保人次":5206,"健保點數":2454939.0,"減重人次":631,"診所銷售金額":227240,"OTC銷售金額":30249,"初診":1069.0,"複診":4111.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-10-01","院區":"八德院區","健保人次":7321,"健保點數":2375961.0,"減重人次":204,"診所銷售金額":86980,"OTC銷售金額":16484,"初診":1296.0,"複診":5983.0,"藥局總申報件數":7407.0,"藥局申報點值":1218022.0},{"日期":"2025-10-01","院區":"龍潭院區","健保人次":6002,"健保點數":2240567.0,"減重人次":347,"診所銷售金額":152520,"OTC銷售金額":21919,"初診":1113.0,"複診":4863.0,"藥局總申報件數":6175.0,"藥局申報點值":1055332.0},{"日期":"2025-10-01","院區":"大溪院區","健保人次":5899,"健保點數":2272744.0,"減重人次":227,"診所銷售金額":173620,"OTC銷售金額":23440,"初診":1008.0,"複診":4861.0,"藥局總申報件數":6308.0,"藥局申報點值":1292805.0},{"日期":"2025-10-01","院區":"大竹院區","健保人次":4175,"健保點數":1492145.0,"減重人次":184,"診所銷售金額":74040,"OTC銷售金額":21580,"初診":928.0,"複診":3211.0,"藥局總申報件數":4039.0,"藥局申報點值":615118.0},{"日期":"2025-10-01","院區":"大湳院區","健保人次":3113,"健保點數":1157925.0,"減重人次":501,"診所銷售金額":198920,"OTC銷售金額":31800,"初診":962.0,"複診":2139.0,"藥局總申報件數":3295.0,"藥局申報點值":533811.0},{"日期":"2025-10-01","院區":"平鎮院區","健保人次":1281,"健保點數":437996.0,"減重人次":23,"診所銷售金額":25240,"OTC銷售金額":1650,"初診":851.0,"複診":418.0,"藥局總申報件數":1229.0,"藥局申報點值":211204.0},{"日期":"2025-11-01","院區":"鶯歌院區","健保人次":8441,"健保點數":3158480.0,"減重人次":260,"診所銷售金額":103000,"OTC銷售金額":64370,"初診":562.0,"複診":7827.0,"藥局總申報件數":9137.0,"藥局申報點值":1754548.0},{"日期":"2025-11-01","院區":"三樹院區","健保人次":5928,"健保點數":2325043.0,"減重人次":1016,"診所銷售金額":565960,"OTC銷售金額":92809,"初診":481.0,"複診":5418.0,"藥局總申報件數":6110.0,"藥局申報點值":1111294.0},{"日期":"2025-11-01","院區":"樹林院區","健保人次":5939,"健保點數":2291943.0,"減重人次":1225,"診所銷售金額":277680,"OTC銷售金額":23080,"初診":607.0,"複診":5280.0,"藥局總申報件數":5839.0,"藥局申報點值":1049678.0},{"日期":"2025-11-01","院區":"桃園院區","健保人次":6040,"健保點數":3520369.0,"減重人次":307,"診所銷售金額":108400,"OTC銷售金額":23097,"初診":887.0,"複診":5136.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-11-01","院區":"土城院區","健保人次":5232,"健保點數":2506498.0,"減重人次":576,"診所銷售金額":198320,"OTC銷售金額":33218,"初診":929.0,"複診":4278.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-11-01","院區":"八德院區","健保人次":6416,"健保點數":2366712.0,"減重人次":229,"診所銷售金額":90540,"OTC銷售金額":21359,"初診":1015.0,"複診":5366.0,"藥局總申報件數":6552.0,"藥局申報點值":1153370.0},{"日期":"2025-11-01","院區":"龍潭院區","健保人次":5191,"健保點數":2144860.0,"減重人次":306,"診所銷售金額":127360,"OTC銷售金額":35078,"初診":919.0,"複診":4258.0,"藥局總申報件數":5458.0,"藥局申報點值":1062183.0},{"日期":"2025-11-01","院區":"大溪院區","健保人次":5386,"健保點數":2096627.0,"減重人次":180,"診所銷售金額":139780,"OTC銷售金額":39209,"初診":769.0,"複診":4585.0,"藥局總申報件數":5877.0,"藥局申報點值":1238336.0},{"日期":"2025-11-01","院區":"大竹院區","健保人次":3938,"健保點數":1414286.0,"減重人次":227,"診所銷售金額":85720,"OTC銷售金額":13910,"初診":811.0,"複診":3095.0,"藥局總申報件數":3876.0,"藥局申報點值":620949.0},{"日期":"2025-11-01","院區":"大湳院區","健保人次":3074,"健保點數":1127908.0,"減重人次":499,"診所銷售金額":168100,"OTC銷售金額":36520,"初診":837.0,"複診":2218.0,"藥局總申報件數":3260.0,"藥局申報點值":540517.0},{"日期":"2025-11-01","院區":"平鎮院區","健保人次":2705,"健保點數":787565.0,"減重人次":139,"診所銷售金額":95640,"OTC銷售金額":13280,"初診":1359.0,"複診":1331.0,"藥局總申報件數":2754.0,"藥局申報點值":506510.0},{"日期":"2025-12-01","院區":"鶯歌院區","健保人次":8719,"健保點數":3084848.0,"減重人次":247,"診所銷售金額":84120,"OTC銷售金額":57507,"初診":431.0,"複診":8239.0,"藥局總申報件數":9585.0,"藥局申報點值":1813071.0},{"日期":"2025-12-01","院區":"三樹院區","健保人次":6350,"健保點數":2311474.0,"減重人次":843,"診所銷售金額":537800,"OTC銷售金額":78159,"初診":452.0,"複診":5860.0,"藥局總申報件數":6633.0,"藥局申報點值":1137633.0},{"日期":"2025-12-01","院區":"樹林院區","健保人次":5887,"健保點數":2294371.0,"減重人次":1269,"診所銷售金額":248725,"OTC銷售金額":20010,"初診":570.0,"複診":5271.0,"藥局總申報件數":6056.0,"藥局申報點值":1125591.0},{"日期":"2025-12-01","院區":"桃園院區","健保人次":6501,"健保點數":3540623.0,"減重人次":304,"診所銷售金額":87140,"OTC銷售金額":29470,"初診":830.0,"複診":5653.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-12-01","院區":"土城院區","健保人次":5496,"健保點數":2846550.0,"減重人次":601,"診所銷售金額":175300,"OTC銷售金額":53978,"初診":844.0,"複診":4614.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2025-12-01","院區":"八德院區","健保人次":7100,"健保點數":2343089.0,"減重人次":200,"診所銷售金額":80080,"OTC銷售金額":9400,"初診":996.0,"複診":6054.0,"藥局總申報件數":7260.0,"藥局申報點值":1258858.0},{"日期":"2025-12-01","院區":"龍潭院區","健保人次":5561,"健保點數":2141115.0,"減重人次":320,"診所銷售金額":135660,"OTC銷售金額":24620,"初診":877.0,"複診":4666.0,"藥局總申報件數":6192.0,"藥局申報點值":1153018.0},{"日期":"2025-12-01","院區":"大溪院區","健保人次":5732,"健保點數":2183629.0,"減重人次":235,"診所銷售金額":191300,"OTC銷售金額":29570,"初診":713.0,"複診":4982.0,"藥局總申報件數":6357.0,"藥局申報點值":1377410.0},{"日期":"2025-12-01","院區":"大竹院區","健保人次":4360,"健保點數":1569396.0,"減重人次":222,"診所銷售金額":74480,"OTC銷售金額":25560,"初診":837.0,"複診":3510.0,"藥局總申報件數":4419.0,"藥局申報點值":694835.0},{"日期":"2025-12-01","院區":"大湳院區","健保人次":3259,"健保點數":1181102.0,"減重人次":432,"診所銷售金額":178180,"OTC銷售金額":56080,"初診":831.0,"複診":2413.0,"藥局總申報件數":3455.0,"藥局申報點值":566802.0},{"日期":"2025-12-01","院區":"平鎮院區","健保人次":3036,"健保點數":749251.0,"減重人次":182,"診所銷售金額":117360,"OTC銷售金額":24179,"初診":1279.0,"複診":1745.0,"藥局總申報件數":3204.0,"藥局申報點值":573914.0},{"日期":"2026-01-01","院區":"鶯歌院區","健保人次":10077,"健保點數":3364071.0,"減重人次":230,"診所銷售金額":119040,"OTC銷售金額":80770,"初診":491.0,"複診":9529.0,"藥局總申報件數":10829.0,"藥局申報點值":2033385.0},{"日期":"2026-01-01","院區":"三樹院區","健保人次":6960,"健保點數":2427431.0,"減重人次":988,"診所銷售金額":553400,"OTC銷售金額":107878,"初診":461.0,"複診":6474.0,"藥局總申報件數":7192.0,"藥局申報點值":1215781.0},{"日期":"2026-01-01","院區":"樹林院區","健保人次":6411,"健保點數":2489138.0,"減重人次":1338,"診所銷售金額":187716,"OTC銷售金額":20620,"初診":554.0,"複診":5816.0,"藥局總申報件數":6546.0,"藥局申報點值":1215848.0},{"日期":"2026-01-01","院區":"桃園院區","健保人次":7188,"健保點數":3701096.0,"減重人次":276,"診所銷售金額":97480,"OTC銷售金額":44070,"初診":1121.0,"複診":6047.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2026-01-01","院區":"土城院區","健保人次":5775,"健保點數":2808477.0,"減重人次":583,"診所銷售金額":241940,"OTC銷售金額":58240,"初診":884.0,"複診":4883.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2026-01-01","院區":"八德院區","健保人次":7806,"健保點數":2626002.0,"減重人次":180,"診所銷售金額":82260,"OTC銷售金額":34009,"初診":1099.0,"複診":6671.0,"藥局總申報件數":7899.0,"藥局申報點值":1447885.0},{"日期":"2026-01-01","院區":"龍潭院區","健保人次":6212,"健保點數":2253061.0,"減重人次":336,"診所銷售金額":119820,"OTC銷售金額":30110,"初診":1155.0,"複診":5024.0,"藥局總申報件數":6636.0,"藥局申報點值":1189085.0},{"日期":"2026-01-01","院區":"大溪院區","健保人次":6123,"健保點數":2314431.0,"減重人次":225,"診所銷售金額":204720,"OTC銷售金額":55141,"初診":933.0,"複診":5152.0,"藥局總申報件數":6632.0,"藥局申報點值":1531529.0},{"日期":"2026-01-01","院區":"大竹院區","健保人次":4702,"健保點數":1619540.0,"減重人次":233,"診所銷售金額":52620,"OTC銷售金額":22500,"初診":953.0,"複診":3736.0,"藥局總申報件數":4810.0,"藥局申報點值":759686.0},{"日期":"2026-01-01","院區":"大湳院區","健保人次":3881,"健保點數":1433252.0,"減重人次":464,"診所銷售金額":166000,"OTC銷售金額":34579,"初診":1104.0,"複診":2762.0,"藥局總申報件數":4084.0,"藥局申報點值":647124.0},{"日期":"2026-01-01","院區":"平鎮院區","健保人次":3291,"健保點數":957235.0,"減重人次":160,"診所銷售金額":134360,"OTC銷售金額":22599,"初診":1380.0,"複診":1898.0,"藥局總申報件數":3413.0,"藥局申報點值":666519.0},{"日期":"2026-01-01","院區":"埔心院區","健保人次":1476,"健保點數":485229.0,"減重人次":28,"診所銷售金額":29220,"OTC銷售金額":10640,"初診":984.0,"複診":486.0,"藥局總申報件數":1448.0,"藥局申報點值":236454.0},{"日期":"2026-02-01","院區":"鶯歌院區","健保人次":8477,"健保點數":2918642.0,"減重人次":243,"診所銷售金額":101440,"OTC銷售金額":72600,"初診":510.0,"複診":7924.0,"藥局總申報件數":9273.0,"藥局申報點值":1730620.0},{"日期":"2026-02-01","院區":"三樹院區","健保人次":5953,"健保點數":2014471.0,"減重人次":834,"診所銷售金額":480380,"OTC銷售金額":110737,"初診":665.0,"複診":5259.0,"藥局總申報件數":6194.0,"藥局申報點值":1012632.0},{"日期":"2026-02-01","院區":"樹林院區","健保人次":5708,"健保點數":2138137.0,"減重人次":1078,"診所銷售金額":207060,"OTC銷售金額":30820,"初診":722.0,"複診":4897.0,"藥局總申報件數":5912.0,"藥局申報點值":1045083.0},{"日期":"2026-02-01","院區":"桃園院區","健保人次":6601,"健保點數":3303323.0,"減重人次":220,"診所銷售金額":76200,"OTC銷售金額":17909,"初診":1268.0,"複診":4929.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2026-02-01","院區":"土城院區","健保人次":5362,"健保點數":2503711.0,"減重人次":544,"診所銷售金額":162000,"OTC銷售金額":31866,"初診":973.0,"複診":4085.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2026-02-01","院區":"八德院區","健保人次":6298,"健保點數":2183172.0,"減重人次":165,"診所銷售金額":62800,"OTC銷售金額":39560,"初診":1294.0,"複診":4981.0,"藥局總申報件數":6402.0,"藥局申報點值":1208941.0},{"日期":"2026-02-01","院區":"龍潭院區","健保人次":5119,"健保點數":1910572.0,"減重人次":291,"診所銷售金額":74580,"OTC銷售金額":23660,"初診":1126.0,"複診":3965.0,"藥局總申報件數":5576.0,"藥局申報點值":993663.0},{"日期":"2026-02-01","院區":"大溪院區","健保人次":5305,"健保點數":1982277.0,"減重人次":209,"診所銷售金額":152460,"OTC銷售金額":27610,"初診":1050.0,"複診":4216.0,"藥局總申報件數":5744.0,"藥局申報點值":1224702.0},{"日期":"2026-02-01","院區":"大竹院區","健保人次":4311,"健保點數":1338062.0,"減重人次":201,"診所銷售金額":51680,"OTC銷售金額":17050,"初診":1098.0,"複診":3199.0,"藥局總申報件數":4422.0,"藥局申報點值":653907.0},{"日期":"2026-02-01","院區":"大湳院區","健保人次":3730,"健保點數":138317.0,"減重人次":437,"診所銷售金額":168340,"OTC銷售金額":34400,"初診":1135.0,"複診":2585.0,"藥局總申報件數":3939.0,"藥局申報點值":635487.0},{"日期":"2026-02-01","院區":"平鎮院區","健保人次":2983,"健保點數":913376.0,"減重人次":148,"診所銷售金額":76120,"OTC銷售金額":20440,"初診":1313.0,"複診":1664.0,"藥局總申報件數":3171.0,"藥局申報點值":678511.0},{"日期":"2026-02-01","院區":"埔心院區","健保人次":2148,"健保點數":701025.0,"減重人次":34,"診所銷售金額":24740,"OTC銷售金額":11820,"初診":1114.0,"複診":1015.0,"藥局總申報件數":1795.0,"藥局申報點值":405764.0},{"日期":"2026-03-01","院區":"鶯歌院區","健保人次":8823,"健保點數":0.0,"減重人次":259,"診所銷售金額":124240,"OTC銷售金額":58038,"初診":0.0,"複診":0.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2026-03-01","院區":"三樹院區","健保人次":6477,"健保點數":0.0,"減重人次":942,"診所銷售金額":582060,"OTC銷售金額":109834,"初診":0.0,"複診":0.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2026-03-01","院區":"樹林院區","健保人次":6002,"健保點數":0.0,"減重人次":1334,"診所銷售金額":208452,"OTC銷售金額":25190,"初診":0.0,"複診":0.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2026-03-01","院區":"桃園院區","健保人次":7110,"健保點數":0.0,"減重人次":280,"診所銷售金額":76280,"OTC銷售金額":31070,"初診":0.0,"複診":0.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2026-03-01","院區":"土城院區","健保人次":5458,"健保點數":0.0,"減重人次":516,"診所銷售金額":138620,"OTC銷售金額":42575,"初診":0.0,"複診":0.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2026-03-01","院區":"八德院區","健保人次":6518,"健保點數":0.0,"減重人次":177,"診所銷售金額":72160,"OTC銷售金額":35210,"初診":0.0,"複診":0.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2026-03-01","院區":"龍潭院區","健保人次":5823,"健保點數":0.0,"減重人次":304,"診所銷售金額":108280,"OTC銷售金額":29650,"初診":0.0,"複診":0.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2026-03-01","院區":"大溪院區","健保人次":6074,"健保點數":0.0,"減重人次":213,"診所銷售金額":168040,"OTC銷售金額":36089,"初診":0.0,"複診":0.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2026-03-01","院區":"大竹院區","健保人次":4493,"健保點數":0.0,"減重人次":228,"診所銷售金額":60340,"OTC銷售金額":28210,"初診":0.0,"複診":0.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2026-03-01","院區":"大湳院區","健保人次":3608,"健保點數":0.0,"減重人次":455,"診所銷售金額":152740,"OTC銷售金額":41958,"初診":0.0,"複診":0.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2026-03-01","院區":"平鎮院區","健保人次":3180,"健保點數":0.0,"減重人次":183,"診所銷售金額":104100,"OTC銷售金額":32868,"初診":0.0,"複診":0.0,"藥局總申報件數":0.0,"藥局申報點值":0.0},{"日期":"2026-03-01","院區":"埔心院區","健保人次":2685,"健保點數":0.0,"減重人次":111,"診所銷售金額":73840,"OTC銷售金額":19290,"初診":0.0,"複診":0.0,"藥局總申報件數":0.0,"藥局申報點值":0.0}];
+
+// ══ 修正：健保點數單位為萬點，NaN 計為 0 ══════════════
+const METRICS=[
+  {key:"健保人次",   lbl:"健保人次",   unit:"人",  icon:"🏥",cls:"cb",fmt:"num"},
+  {key:"減重人次",   lbl:"減重人次",   unit:"人",  icon:"⚖️",cls:"cg",fmt:"num"},
+  {key:"健保點數",   lbl:"健保點數",   unit:"萬點",icon:"💉",cls:"cp",fmt:"wan"},  // 修正：萬點
+  {key:"診所銷售金額",lbl:"診所銷售",  unit:"萬元",icon:"💊",cls:"co",fmt:"wan"},
+  {key:"OTC銷售金額",lbl:"OTC銷售",   unit:"萬元",icon:"🧴",cls:"ct",fmt:"wan"},
+  {key:"藥局申報點值",lbl:"藥局點值",  unit:"萬點",icon:"🏪",cls:"cr",fmt:"wan"},
+];
+
+let rawD=[],D=[],mode='Q',curIdx=0,periods=[],aM="健保人次",aV="cur";
+let KDZL=parseFloat(localStorage.getItem('kdzl')||'0.9');
+let GEMINI_KEY=localStorage.getItem('gemini_key')||'';
+let GEMINI_MODEL=localStorage.getItem('gemini_model')||'gemini-2.0-flash-lite';
+
+async function init(){
+  document.getElementById("btnR").classList.add("ld");
+  show("ls");
+  resetAI();
+  try{
+    document.getElementById("lmsg").textContent="正在連接 Apps Script…";
+    // 8 秒逾時：超時自動切換靜態資料
+    const ctrl=new AbortController();
+    const tid=setTimeout(()=>ctrl.abort(),8000);
+    let r;
+    try{
+      r=await fetch(API,{signal:ctrl.signal});
+      clearTimeout(tid);
+    }catch(fe){
+      clearTimeout(tid);
+      throw fe;
+    }
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const j=await r.json();
+    if(j.error) throw new Error(j.error);
+    rawD=parseR_raw(j.data); D=applyKDZL(rawD);
+    setTag("live","● 即時雲端");
+  }catch(e){
+    console.warn("fallback:",e.message);
+    rawD=parseR_raw(STATIC); D=applyKDZL(rawD);
+    setTag("static","● 靜態備用");
+  }
+  buildP(); curIdx=periods.length-1; renderQS(); render();
+  updateChatHint();
+  hide("ls"); document.getElementById("btnR").classList.remove("ld");
+}
+function setTag(c,t){const e=document.getElementById("srcTag");e.className=c;e.textContent=t;}
+
+// ── 解析：NaN / null → 0 ────────────────────────
+function parseR_raw(rows){
+  return (rows||[]).map(r=>{
+    const d=new Date(r["日期"]||"");
+    if(isNaN(d))return null;
+    const yr=d.getFullYear(),mo=d.getMonth()+1;
+    return{
+      ym:`${yr}-${String(mo).padStart(2,"0")}`,yr,mo,
+      clinic:String(r["院區"]||"").trim(),
+      健保人次:  nv(r["健保人次"]),
+      健保點數:  nv(r["健保點數"]) * KDZL,  // 申報點數 × 核定率
+      _hbPts:    nv(r["健保點數"]),          // 原始申報點數
+      減重人次:  nv(r["減重人次"]),
+      診所銷售金額:nv(r["診所銷售金額"]),
+      OTC銷售金額:nv(r["OTC銷售金額"]),
+      初診:nv(r["初診"]),複診:nv(r["複診"]),
+      藥局總申報件數:nv(r["藥局總申報件數"]),
+      藥局申報點值:nv(r["藥局申報點值"]),
+    };
+  }).filter(r=>r&&r.clinic);
+}
+function applyKDZL(data){
+  return data.map(r=>({...r, 健保點數: r._hbPts * KDZL}));
+}
+// Settings
+function openSettings(){
+  const p=document.getElementById('settingsPanel');
+  const o=document.getElementById('settingsOverlay');
+  document.getElementById('kdzlRange').value=Math.round(KDZL*100);
+  document.getElementById('kdzlVal').textContent=Math.round(KDZL*100)+'%';
+  document.getElementById('geminiKeyInput').value=GEMINI_KEY;
+  document.getElementById('geminiModel').value=GEMINI_MODEL;
+  p.style.display='block'; o.style.display='block';
+  document.getElementById('settingsSaved').style.display='none';
+}
+function closeSettings(){
+  document.getElementById('settingsPanel').style.display='none';
+  document.getElementById('settingsOverlay').style.display='none';
+}
+function saveSettings(){
+  KDZL=parseInt(document.getElementById('kdzlRange').value)/100;
+  GEMINI_KEY=document.getElementById('geminiKeyInput').value.trim();
+  GEMINI_MODEL=document.getElementById('geminiModel').value;
+  localStorage.setItem('kdzl',KDZL);
+  localStorage.setItem('gemini_key',GEMINI_KEY);
+  localStorage.setItem('gemini_model',GEMINI_MODEL);
+  D=applyKDZL(rawD); buildP(); render();
+  updateChatHint();
+  document.getElementById('settingsSaved').style.display='block';
+  setTimeout(closeSettings, 1000);
+}
+// NotebookLM
+function exportNLM(){
+  const cur=periods[curIdx],prev=getPrev(curIdx),yoy=getYoy(curIdx);
+  const txt=buildNLMText(cur,prev,yoy);
+  document.getElementById('nlmText').value=txt;
+  document.getElementById('nlmPanel').style.display='block';
+  document.getElementById('nlmOverlay').style.display='block';
+  document.getElementById('nlmCopied').style.display='none';
+}
+function closeNLM(){
+  document.getElementById('nlmPanel').style.display='none';
+  document.getElementById('nlmOverlay').style.display='none';
+}
+function copyNLM(){
+  const txt=document.getElementById('nlmText').value;
+  navigator.clipboard.writeText(txt).then(()=>{
+    document.getElementById('nlmCopied').style.display='block';
+  }).catch(()=>{
+    document.getElementById('nlmText').select();
+    document.execCommand('copy');
+    document.getElementById('nlmCopied').style.display='block';
+  });
+}
+function buildNLMText(cur,prev,yoy){
+  const roc=y=>y-1911;
+  let lines=[
+    `# 金鶯診所集團 營運數據報告`,
+    `**分析期間：** ${cur.lbl}`,
+    `**資料更新：** ${new Date().toLocaleDateString('zh-TW')}`,
+    `**核定率設定：** ${(KDZL*100).toFixed(0)}%`,
+    ``,
+    `## 一、集團整體 KPI 彙總`,
+    ``
+  ];
+  const hdr=['指標','本期','上期','環比','去年同期','YoY'];
+  lines.push('| '+hdr.join(' | ')+' |');
+  lines.push('|'+hdr.map(()=>'---').join('|')+'|');
+  METRICS.forEach(m=>{
+    const v1=sumMs(cur.months,m.key),v2=prev?sumMs(prev.months,m.key):0,v3=yoy?sumMs(yoy.months,m.key):0;
+    const pp=v2>0?pct(v1,v2):null,py=v3>0?pct(v1,v3):null;
+    const fv=v=>fmt(v,m.fmt)+m.unit;
+    lines.push(`| ${m.lbl} | ${fv(v1)} | ${v2>0?fv(v2):'—'} | ${pp!==null?ps(pp):'—'} | ${v3>0?fv(v3):'—'} | ${py!==null?ps(py):'—'} |`);
+  });
+  lines.push('');
+  lines.push('## 二、各院區健保人次明細');
+  lines.push('');
+  const c1=sumC(cur.months,'健保人次'),c3=yoy?sumC(yoy.months,'健保人次'):{};
+  const all=[...new Set(D.map(r=>r.clinic))].filter(c=>c1[c]>0).sort((a,b)=>(c1[b]||0)-(c1[a]||0));
+  lines.push('| 院區 | 本期人次 | 去年同期 | YoY% |');
+  lines.push('|---|---|---|---|');
+  all.forEach(c=>{
+    const v1=c1[c]||0,v3=c3[c]||0;
+    const py=v3>0?pct(v1,v3):null;
+    lines.push(`| ${c} | ${v1.toLocaleString()} | ${v3>0?v3.toLocaleString():'新設'} | ${py!==null?ps(py):'新設'} |`);
+  });
+  lines.push('');
+  lines.push('## 三、各院區診所銷售明細');
+  lines.push('');
+  const s1=sumC(cur.months,'診所銷售金額'),sy=yoy?sumC(yoy.months,'診所銷售金額'):{};
+  lines.push('| 院區 | 本期銷售 | 去年同期 | YoY% |');
+  lines.push('|---|---|---|---|');
+  all.forEach(c=>{
+    const v1=s1[c]||0,v3=sy[c]||0;
+    const py=v3>0?pct(v1,v3):null;
+    lines.push(`| ${c} | ${(v1/10000).toFixed(1)}萬 | ${v3>0?(v3/10000).toFixed(1)+'萬':'新設'} | ${py!==null?ps(py):'新設'} |`);
+  });
+  lines.push('');
+  lines.push('## 四、各院區減重人次明細');
+  lines.push('');
+  const w1=sumC(cur.months,'減重人次'),wy=yoy?sumC(yoy.months,'減重人次'):{};
+  lines.push('| 院區 | 本期減重人次 | 去年同期 | YoY% |');
+  lines.push('|---|---|---|---|');
+  all.forEach(c=>{
+    const v1=w1[c]||0,v3=wy[c]||0;
+    const py=v3>0?pct(v1,v3):null;
+    lines.push(`| ${c} | ${v1.toLocaleString()} | ${v3>0?v3.toLocaleString():'新設'} | ${py!==null?ps(py):'新設'} |`);
+  });
+  lines.push('');
+  lines.push('## 五、背景資訊');
+  lines.push('');
+  lines.push(`- 金鶯診所集團旗下共 ${all.length} 個院區，遍布桃園、新北等地`);
+  lines.push(`- 業務類型：健保門診（含一般診療、慢性病）、自費減重門診、診所銷售（藥品保健品）`);
+  lines.push(`- 健保點數已依核定率 ${(KDZL*100).toFixed(0)}% 調整`);
+  lines.push(`- 請根據以上數據，提供：(1) 整體營運表現評估 (2) 各院區個別建議 (3) 具體改善行動方案 (4) 下季目標建議`);
+  return lines.join('\n');
+}
+function md2html(t){
+  if(!t)return '';
+  return t
+    .replace(/^### (.+)$/gm,'<h4>$1</h4>')
+    .replace(/^## (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^# (.+)$/gm,'<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/^[-*] (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>[^<]*<\/li>\n?)+/g,m=>'<ul>'+m+'</ul>')
+    .replace(/^(\d+)\. (.+)$/gm,'<li>$2</li>')
+    .replace(/\n\n/g,'</p><p>')
+    .replace(/\n/g,'<br>');
+}
+
+// 安全數字轉換：null/undefined/NaN/"" → 0
+function nv(v){
+  if(v===null||v===undefined||v==="")return 0;
+  const x=parseFloat(String(v).replace(/,/g,""));
+  return isNaN(x)?0:x;
+}
+
+// ── Period Logic ────────────────────────────────
+function buildP(){
+  const yms=[...new Set(D.map(r=>r.ym))].sort();
+  periods=[];
+  if(mode==='Q'){
+    const qs=new Set();
+    yms.forEach(ym=>{const yr=+ym.slice(0,4),mo=+ym.slice(5,7),q=Math.ceil(mo/3);qs.add(`${yr}-${q}`);});
+    [...qs].sort().forEach(s=>{
+      const[yr,q]=[+s.split("-")[0],+s.split("-")[1]];
+      const ms=[1,2,3].map(i=>`${yr}-${String((q-1)*3+i).padStart(2,"0")}`);
+      const am=ms.filter(m=>yms.includes(m));
+      if(am.length) periods.push({id:`${yr}-Q${q}`,lbl:`${yr-1911}年 Q${q}`,sub:`${ms[0].slice(5)}月～${ms[2].slice(5)}月`,months:ms,am,yr,q});
+    });
+  } else {
+    yms.forEach(ym=>{
+      const yr=+ym.slice(0,4),mo=+ym.slice(5,7);
+      periods.push({id:ym,lbl:`${yr-1911}年${mo}月`,sub:ym,months:[ym],am:[ym],yr,mo});
+    });
+  }
+}
+const getPrev=i=>i>0?periods[i-1]:null;
+function getYoy(i){
+  const p=periods[i];
+  const tid=mode==='Q'?`${p.yr-1}-Q${p.q}`:`${p.yr-1}-${String(p.mo).padStart(2,"0")}`;
+  return periods.find(x=>x.id===tid)||null;
+}
+
+function setMode(m){
+  mode=m;
+  document.getElementById("btnQ").classList.toggle("on",m==="Q");
+  document.getElementById("btnM").classList.toggle("on",m==="M");
+  buildP(); curIdx=periods.length-1; aV="cur"; resetAI(); renderQS(); render();
+}
+function shift(d){const ni=curIdx+d;if(ni<0||ni>=periods.length)return;curIdx=ni;aV="cur";resetAI();renderQS();render();}
+function jumpTo(i){curIdx=i;aV="cur";resetAI();renderQS();render();}
+function renderQS(){
+  const s=Math.max(0,periods.length-6);
+  document.getElementById("qs").innerHTML=periods.slice(s).map((p,i)=>{
+    const ri=s+i;
+    return`<button class="qs-btn${ri===curIdx?" on":""}" onclick="jumpTo(${ri})">${p.lbl}</button>`;
+  }).join("");
+}
+
+// ── Aggregation ─────────────────────────────────
+const sumMs=(ms,k)=>D.filter(r=>ms.includes(r.ym)).reduce((s,r)=>s+(r[k]||0),0);
+const sumC=(ms,k)=>{const m={};D.filter(r=>ms.includes(r.ym)).forEach(r=>{m[r.clinic]=(m[r.clinic]||0)+(r[k]||0)});return m;};
+const pct=(a,b)=>b>0?(a-b)/b:null;
+const ps=(p,sg=true)=>p===null?"新設":(sg&&p>0?"+":"")+(p*100).toFixed(1)+"%";
+const pc=p=>p===null?"na":p>0?"up":"dn";
+const ar=p=>p===null?"🆕":p>0?"▲":"▼";
+const fmt=(v,t)=>t==="wan"?(v/10000).toFixed(1):Math.round(v).toLocaleString("zh-TW");
+
+// ═══════════════════════════════════════════════
+//  Render
+// ═══════════════════════════════════════════════
+function render(){
+  const cur=periods[curIdx],prev=getPrev(curIdx),yoy=getYoy(curIdx);
+  if(!cur)return;
+  document.getElementById("btnPrev").disabled=curIdx<=0;
+  document.getElementById("btnNext").disabled=curIdx>=periods.length-1;
+  document.getElementById("pMain").textContent=cur.lbl;
+  document.getElementById("pSub").textContent=cur.sub;
+  document.getElementById("cPrev").textContent=prev?prev.lbl:"無";
+  document.getElementById("cYoy").textContent=yoy?yoy.lbl:"無";
+  document.getElementById("spSec").textContent=mode==='Q'?"📅 季內月別細項":"📅 前後月對比";
+  document.getElementById("aiPeriodLbl").textContent=`分析期間：${cur.lbl}${prev?" ／ "+prev.lbl:""} ／ ${yoy?yoy.lbl:"去年無資料"}`;
+  // Notice
+  const lm=cur.am[cur.am.length-1];
+  const inc=D.filter(r=>r.ym===lm).some(r=>r.健保點數===0&&r.健保人次>0);
+  const nb=document.getElementById("nb");
+  if(inc){nb.innerHTML=`⚠️ <b>${+lm.slice(5)+"月"}份</b>健保點數、初診、複診及藥局資料尚未完整申報，以現有數字呈現，數值偏低屬正常現象`;nb.style.display="block";}
+  else nb.style.display="none";
+  renderMT();renderKPI(cur,prev,yoy);renderVT(cur,prev,yoy);renderCC(cur,prev,yoy);renderSP(cur);renderBars(cur);renderTbl(cur,prev,yoy);renderTrendChart();renderRadar(cur);renderClinicBar(cur);
+}
+
+function renderMT(){
+  document.getElementById("mtabs").innerHTML=METRICS.map(m=>
+    `<button class="mbt${m.key===aM?" on":""}" onclick="swM('${m.key}')">${m.icon} ${m.lbl}</button>`
+  ).join("");
+}
+function swM(k){
+  aM=k;
+  document.querySelectorAll(".mbt").forEach(b=>b.classList.toggle("on",b.textContent.includes(METRICS.find(m=>m.key===k).lbl)));
+  const cur=periods[curIdx],prev=getPrev(curIdx),yoy=getYoy(curIdx);
+  renderCC(cur,prev,yoy);renderBars(cur);renderTbl(cur,prev,yoy);
+}
+
+function renderKPI(cur,prev,yoy){
+  const el=document.getElementById("kgrid");el.innerHTML="";
+  METRICS.forEach(m=>{
+    const v1=sumMs(cur.months,m.key),v2=prev?sumMs(prev.months,m.key):0,v3=yoy?sumMs(yoy.months,m.key):0;
+    const pp=v2>0?pct(v1,v2):null,py=v3>0?pct(v1,v3):null;
+    const d=document.createElement("div");d.className=`kcard ${m.cls}`;
+    d.innerHTML=`<div class="ki">${m.icon}</div><div class="kl">${m.lbl}</div>
+      <div class="kv"><span class="ctr" data-v="${v1}" data-t="${m.fmt}">—</span><span class="ku">${m.unit}</span></div>
+      <div class="kcomps">
+        <span class="kb ${v2>0?pc(pp):"na"}">${v2>0?(ar(pp)+" 上期 "+ps(pp)):"上期 —"}</span>
+        <span class="kb ${v3>0?pc(py):"na"}">${v3>0?(ar(py)+" YoY "+ps(py)):"YoY —"}</span>
+      </div>
+      <div class="kbase">${prev?prev.lbl:"上期"} ${v2>0?fmt(v2,m.fmt)+m.unit:"無"} / ${yoy?yoy.lbl:"去年"} ${v3>0?fmt(v3,m.fmt)+m.unit:"無"}</div>`;
+    el.appendChild(d);
+  });
+  ctrs();
+}
+
+function renderVT(cur,prev,yoy){
+  document.getElementById("vtabs").innerHTML=
+    [{k:"cur",l:cur.lbl},{k:"prev",l:"vs "+(prev?prev.lbl:"上期")},{k:"yoy",l:"vs "+(yoy?yoy.lbl:"去年")}]
+    .map(v=>`<button class="vbt${v.k===aV?" on":""}" onclick="swV('${v.k}')">${v.l}</button>`).join("");
+}
+function swV(k){aV=k;document.querySelectorAll(".vbt").forEach((b,i)=>b.classList.toggle("on",["cur","prev","yoy"][i]===k));const c=periods[curIdx];renderCC(c,getPrev(curIdx),getYoy(curIdx));}
+
+function renderCC(cur,prev,yoy){
+  const m=METRICS.find(x=>x.key===aM);
+  const c1=sumC(cur.months,aM),c2=prev?sumC(prev.months,aM):{},c3=yoy?sumC(yoy.months,aM):{};
+  const all=[...new Set(D.map(r=>r.clinic))].filter(c=>c1[c]>0).sort((a,b)=>(c1[b]||0)-(c1[a]||0));
+  const newC=all.filter(c=>!(c3[c]>0));
+  const rc=["gold","silver","bronze"],el=document.getElementById("cgrid");el.innerHTML="";
+  all.forEach((c,i)=>{
+    const v1=c1[c]||0,v2=c2[c]||0,v3=c3[c]||0;
+    const pp=v2>0?pct(v1,v2):null,py=v3>0?pct(v1,v3):null;
+    const isN=newC.includes(c),ri=i+1;
+    const ico=ri===1?"🥇":ri===2?"🥈":ri===3?"🥉":"#"+ri;
+    const cls=i<3?rc[i]:(isN?"newc":"");
+    let dv,ds;
+    if(aV==="prev"){dv=pp===null?"無基期":ps(pp);ds=prev?`${prev.lbl}：${fmt(v2,m.fmt)}${m.unit}`:"—";}
+    else if(aV==="yoy"){dv=py===null?"新設":ps(py);ds=yoy?`${yoy.lbl}：${fmt(v3,m.fmt)}${m.unit}`:"—";}
+    else{dv=`<span class="ctr" data-v="${v1}" data-t="${m.fmt}">—</span>`;ds=m.unit;}
+    el.innerHTML+=`<div class="cc ${cls}">
+      ${isN?'<span class="ntag">新設</span>':""}
+      <div class="rk">${ico}</div><div class="cn">${c}</div>
+      <div class="cv">${dv}</div><div class="cs">${ds}</div>
+      ${aV==="cur"?`<div class="cbg">
+        <span class="cbb ${v2>0?pc(pp):"na"}">${v2>0?(ar(pp)+ps(pp)):"上期無"}</span>
+        <span class="cbb ${v3>0?pc(py):"na"}">${v3>0?(ar(py)+ps(py)):"YoY新設"}</span>
+      </div>`:""}
+    </div>`;
+  });
+  if(aV==="cur")ctrs();
+}
+
+function renderSP(cur){
+  const el=document.getElementById("spgrid");el.innerHTML="";
+  const mc=["#3b82f6","#f59e0b","#10b981","#8b5cf6","#14b8a6","#ef4444"];
+  cur.am.forEach((ym,i)=>{
+    const[yr,mo]=[+ym.slice(0,4),+ym.slice(5,7)];
+    const rows=D.filter(r=>r.ym===ym);
+    if(!rows.length){el.innerHTML+=`<div class="spc"><div class="spc-t"><span class="spc-dot" style="background:${mc[i%6]}"></span>${yr-1911}年${mo}月</div><div style="color:var(--mu);font-size:12px">暫無資料</div></div>`;return;}
+    const ccs=[...new Set(rows.map(r=>r.clinic))].length;
+    const tot={};METRICS.slice(0,4).forEach(m=>{tot[m.key]=rows.reduce((s,r)=>s+(r[m.key]||0),0)});
+    el.innerHTML+=`<div class="spc">
+      <div class="spc-t"><span class="spc-dot" style="background:${mc[i%6]}"></span>${yr-1911}年${mo}月（${ccs}院區）</div>
+      ${METRICS.slice(0,4).map(m=>`<div class="spc-r"><span class="spc-l">${m.icon} ${m.lbl}</span><span class="spc-v">${fmt(tot[m.key],m.fmt)}<small style="color:var(--mu);margin-left:2px">${m.unit}</small></span></div>`).join("")}
+    </div>`;
+  });
+}
+
+function renderBars(cur){
+  const m=METRICS.find(x=>x.key===aM);
+  const c1=sumC(cur.months,aM);
+  const sorted=Object.entries(c1).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  const max=sorted[0]?.[1]||1;
+  const cols=["#3b82f6","#60a5fa","#93c5fd","#10b981","#6ee7b7","#f59e0b","#fcd34d","#8b5cf6","#c4b5fd","#14b8a6","#5eead4","#fb923c"];
+  document.getElementById("bttl").textContent=`${cur.lbl}　${m.icon} ${m.lbl}`;
+  const el=document.getElementById("barea");
+  el.innerHTML=sorted.map(([c,v],i)=>`<div class="brow">
+    <div class="bnm">${c}</div>
+    <div class="btrk"><div class="bfil" data-p="${(v/max*100).toFixed(1)}" style="background:${cols[i%12]}"></div></div>
+    <div class="bnum">${fmt(v,m.fmt)}</div>
+  </div>`).join("");
+  setTimeout(()=>el.querySelectorAll(".bfil").forEach(b=>{b.style.width=b.dataset.p+"%"}),80);
+}
+
+function renderTbl(cur,prev,yoy){
+  const m=METRICS.find(x=>x.key===aM);
+  const c1=sumC(cur.months,aM),c2=prev?sumC(prev.months,aM):{},c3=yoy?sumC(yoy.months,aM):{};
+  const all=[...new Set(D.map(r=>r.clinic))].filter(c=>c1[c]>0).sort((a,b)=>(c1[b]||0)-(c1[a]||0));
+  const hP=Object.values(c2).some(v=>v>0),hY=Object.values(c3).some(v=>v>0);
+  const newC=all.filter(c=>!(c3[c]>0));
+  let h=`<thead><tr><th>院區</th><th>${cur.lbl}</th>
+    ${hP?`<th>${prev?prev.lbl:"上期"}</th><th>增減</th><th>上期%</th>`:""}
+    ${hY?`<th>${yoy?yoy.lbl:"去年"}</th><th>增減</th><th>YoY%</th>`:""}
+  </tr></thead><tbody>`;
+  all.forEach(c=>{
+    const v1=c1[c]||0,v2=c2[c]||0,v3=c3[c]||0;
+    const pp=v2>0?pct(v1,v2):null,py=v3>0?pct(v1,v3):null,isN=newC.includes(c);
+    h+=`<tr><td>${c}${isN?'<span class="tnew">新設</span>':""}</td><td><b>${fmt(v1,m.fmt)}</b> ${m.unit}</td>
+      ${hP?`<td>${v2>0?fmt(v2,m.fmt)+" "+m.unit:"—"}</td>
+        <td class="${pp!=null?(pp>0?"pu":"pd"):"pn"}">${pp!=null?ar(pp)+" "+fmt(v1-v2,m.fmt):"無基期"}</td>
+        <td class="${pp!=null?(pp>0?"pu":"pd"):"pn"}">${pp!=null?ps(pp):"—"}</td>`:""}
+      ${hY?`<td>${v3>0?fmt(v3,m.fmt)+" "+m.unit:"—"}</td>
+        <td class="${py!=null?(py>0?"pu":"pd"):"pn"}">${py!=null?ar(py)+" "+fmt(v1-v3,m.fmt):"新設"}</td>
+        <td class="${py!=null?(py>0?"pu":"pd"):"pn"}">${py!=null?ps(py):"新設"}</td>`:""}
+    </tr>`;
+  });
+  const s1=all.reduce((s,c)=>s+(c1[c]||0),0),s2=all.reduce((s,c)=>s+(c2[c]||0),0),s3=all.reduce((s,c)=>s+(c3[c]||0),0);
+  const tp=s2>0?pct(s1,s2):null,ty=s3>0?pct(s1,s3):null;
+  h+=`<tr class="tr"><td>全集團合計</td><td><b>${fmt(s1,m.fmt)}</b> ${m.unit}</td>
+    ${hP?`<td>${fmt(s2,m.fmt)} ${m.unit}</td><td class="${tp!=null?(tp>0?"pu":"pd"):"pn"}">${tp!=null?ar(tp)+" "+fmt(s1-s2,m.fmt):"—"}</td><td class="${tp!=null?(tp>0?"pu":"pd"):"pn"}">${tp!=null?ps(tp):"—"}</td>`:""}
+    ${hY?`<td>${fmt(s3,m.fmt)} ${m.unit}</td><td class="${ty!=null?(ty>0?"pu":"pd"):"pn"}">${ty!=null?ar(ty)+" "+fmt(s1-s3,m.fmt):"—"}</td><td class="${ty!=null?(ty>0?"pu":"pd"):"pn"}">${ty!=null?ps(ty):"—"}</td>`:""}
+  </tr></tbody>`;
+  document.getElementById("ctbl").innerHTML=h;
+}
+
+// ═══════════════════════════════════════════════
+//  Chart.js 圖表
+// ═══════════════════════════════════════════════
+let trendChartInst=null, radarChartInst=null, clinicBarInst=null;
+
+const CHART_COLORS=['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#14b8a6','#f97316','#ec4899','#6366f1','#84cc16','#06b6d4','#d946ef'];
+const CHART_OPTS={
+  responsive:true, maintainAspectRatio:false,
+  plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}},tooltip:{backgroundColor:'#1e1e2e',titleColor:'#e2e8f0',bodyColor:'#94a3b8',borderColor:'#3f3f5a',borderWidth:1}},
+  scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'}}}
+};
+
+// ── 趨勢折線圖 ───────────────────────────────────
+function renderTrendChart(){
+  // Build tabs for metric switching
+  const tabs=document.getElementById('trendTabs');
+  if(tabs) tabs.innerHTML=METRICS.map(m=>
+    `<button class="chart-tab${m.key===aM?' on':''}" onclick="setTrendMetric('${m.key}')">${m.icon} ${m.lbl}</button>`
+  ).join('');
+  drawTrend(aM);
+}
+function setTrendMetric(key){
+  aM=key;
+  document.querySelectorAll('.chart-tab').forEach((b,i)=>b.classList.toggle('on',METRICS[i].key===key));
+  document.querySelectorAll('.mbt').forEach(b=>b.classList.toggle('on',b.textContent.includes(METRICS.find(m=>m.key===key).lbl)));
+  const cur=periods[curIdx];drawTrend(key);renderCC(cur,getPrev(curIdx),getYoy(curIdx));renderBars(cur);renderTbl(cur,getPrev(curIdx),getYoy(curIdx));
+}
+function drawTrend(key){
+  const m=METRICS.find(x=>x.key===key);
+  // All periods sorted by time
+  const allP=mode==='Q'?periods:[...periods];
+  const labels=allP.map(p=>p.lbl);
+  const vals=allP.map(p=>{ const v=sumMs(p.months,key); return m.fmt==='wan'? parseFloat((v/10000).toFixed(1)):Math.round(v); });
+  // Highlight current period
+  const bgColors=allP.map((_,i)=>i===curIdx?'rgba(99,102,241,.25)':'transparent');
+  const ptColors=allP.map((_,i)=>i===curIdx?'#a78bfa':'#3b82f6');
+  const ptRadius=allP.map((_,i)=>i===curIdx?7:4);
+
+  const canvas=document.getElementById('trendChart');
+  if(!canvas)return;
+  if(trendChartInst){trendChartInst.destroy();trendChartInst=null;}
+  trendChartInst=new Chart(canvas,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:`${m.lbl}（${m.unit}）`,
+        data:vals,
+        borderColor:'#3b82f6',
+        backgroundColor:'rgba(59,130,246,.12)',
+        pointBackgroundColor:ptColors,
+        pointRadius:ptRadius,
+        pointHoverRadius:8,
+        fill:true,tension:.35,borderWidth:2
+      }]
+    },
+    options:{
+      ...CHART_OPTS,
+      plugins:{
+        ...CHART_OPTS.plugins,
+        tooltip:{...CHART_OPTS.plugins.tooltip,callbacks:{label:ctx=>`${ctx.parsed.y.toLocaleString('zh-TW')} ${m.unit}`}},
+        annotation:{annotations:{}}
+      },
+      onClick:(_,els)=>{if(els.length){curIdx=els[0].index;aV='cur';renderQS();render();}}
+    }
+  });
+}
+
+// ── 院區雷達圖 ────────────────────────────────────
+function renderRadar(cur){
+  const canvas=document.getElementById('radarChart');
+  if(!canvas||!window.Chart)return;
+  if(radarChartInst){radarChartInst.destroy();radarChartInst=null;}
+
+  const keys=['健保人次','減重人次','診所銷售金額','OTC銷售金額','藥局申報點值'];
+  const labels=['健保人次','減重人次','診所銷售','OTC銷售','藥局點值'];
+  const clinics=[...new Set(D.map(r=>r.clinic))].filter(c=>{
+    return keys.some(k=>sumC(cur.months,k)[c]>0);
+  });
+  const topC=clinics.sort((a,b)=>sumC(cur.months,'健保人次')[b]-sumC(cur.months,'健保人次')[a]).slice(0,5);
+
+  // Normalize each axis to max=100
+  const maxes=keys.map(k=>Math.max(...clinics.map(c=>sumC(cur.months,k)[c]||0))||1);
+  const datasets=topC.map((c,i)=>({
+    label:c,
+    data:keys.map((k,j)=>{const v=sumC(cur.months,k)[c]||0;return parseFloat((v/maxes[j]*100).toFixed(1));}),
+    borderColor:CHART_COLORS[i],
+    backgroundColor:CHART_COLORS[i].replace(')',',0.12)').replace('rgb','rgba'),
+    pointBackgroundColor:CHART_COLORS[i],borderWidth:2,pointRadius:3
+  }));
+
+  radarChartInst=new Chart(canvas,{
+    type:'radar',
+    data:{labels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#94a3b8',font:{size:10}}},tooltip:{backgroundColor:'#1e1e2e',titleColor:'#e2e8f0',bodyColor:'#94a3b8',borderColor:'#3f3f5a',borderWidth:1}},
+      scales:{r:{ticks:{display:false},grid:{color:'rgba(255,255,255,.08)'},pointLabels:{color:'#94a3b8',font:{size:10}},angleLines:{color:'rgba(255,255,255,.06)'}}}
+    }
+  });
+}
+
+// ── 院區 KPI 橫向比較圖 ────────────────────────────
+function renderClinicBar(cur){
+  const canvas=document.getElementById('clinicBarChart');
+  if(!canvas||!window.Chart)return;
+  if(clinicBarInst){clinicBarInst.destroy();clinicBarInst=null;}
+
+  const m=METRICS.find(x=>x.key===aM);
+  const c1=sumC(cur.months,aM);
+  const sorted=Object.entries(c1).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  const labels=sorted.map(([c])=>c.replace('院區',''));
+  const vals=sorted.map(([,v])=>m.fmt==='wan'?parseFloat((v/10000).toFixed(1)):Math.round(v));
+  const bgColors=sorted.map((_,i)=>CHART_COLORS[i%12]+'cc');
+  const borderColors=sorted.map((_,i)=>CHART_COLORS[i%12]);
+
+  clinicBarInst=new Chart(canvas,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{label:`${m.lbl}（${m.unit}）`,data:vals,backgroundColor:bgColors,borderColor:borderColors,borderWidth:1,borderRadius:4}]
+    },
+    options:{
+      ...CHART_OPTS,indexAxis:'y',
+      plugins:{...CHART_OPTS.plugins,legend:{display:false},
+        tooltip:{...CHART_OPTS.plugins.tooltip,callbacks:{label:ctx=>`${ctx.parsed.x.toLocaleString('zh-TW')} ${m.unit}`}}
+      },
+      scales:{
+        x:{...CHART_OPTS.scales.x,ticks:{...CHART_OPTS.scales.x.ticks,callback:v=>`${v.toLocaleString()}`}},
+        y:{...CHART_OPTS.scales.y,ticks:{color:'#94a3b8',font:{size:11}}}
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  AI 分析引擎
+// ═══════════════════════════════════════════════
+function resetAI(){
+  const body=document.getElementById("aiBody");
+  body.classList.remove("open");
+  body.innerHTML='<div class="ai-idle"><span>✨</span>點擊「生成營運建議」，AI 將自動分析本期數據並給出具體對策</div>';
+  document.getElementById("btnAI").classList.remove("ld");
+}
+
+async function runAI(){
+  const btn=document.getElementById("btnAI");
+  const body=document.getElementById("aiBody");
+  btn.classList.add("ld");
+  body.classList.add("open");
+  const cur=periods[curIdx],prev=getPrev(curIdx),yoy=getYoy(curIdx);
+  if(GEMINI_KEY){
+    await runAIGemini(btn,body,cur,prev,yoy);
+  } else {
+    body.innerHTML='<div class="ai-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:6px">分析資料中（本地引擎）…</span></div>';
+    await new Promise(r=>setTimeout(r,800));
+    const analysis=analyzeData(cur,prev,yoy);
+    await streamHTML(body, buildAIHTML(analysis,cur,prev,yoy));
+    btn.classList.remove("ld");
+  }
+}
+
+// ── Gemini AI ─────────────────────────────────────────────────────
+async function runAIGemini(btn,body,cur,prev,yoy){
+  body.innerHTML=`<div class="ai-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="margin-left:6px">正在呼叫 Gemini AI（${GEMINI_MODEL}）…</span></div>`;
+  try{
+    const [overallRes, clinicRes] = await Promise.all([
+      callGemini(buildGeminiPrompt(cur,prev,yoy,'overall')),
+      callGemini(buildGeminiPrompt(cur,prev,yoy,'clinic'))
+    ]);
+    body.innerHTML=`
+      <div class="ai-tab-bar">
+        <button class="ai-tab-btn on" onclick="switchAITab('overall',this)">🎯 整體營運建議</button>
+        <button class="ai-tab-btn" onclick="switchAITab('clinic',this)">🏥 分院區建議</button>
+        <span style="margin-left:auto;font-size:11px;color:#7c3aed;align-self:center">🤖 ${GEMINI_MODEL}</span>
+      </div>
+      <div id="aiTabOverall" class="ai-section gemini-output">
+        <div class="ai-sec-title">🎯 整體營運建議</div>
+        <div class="ai-gemini-content"><p>${md2html(overallRes)}</p></div>
+      </div>
+      <div id="aiTabClinic" class="ai-section gemini-output" style="display:none">
+        <div class="ai-sec-title">🏥 分院區建議</div>
+        <div class="ai-gemini-content"><p>${md2html(clinicRes)}</p></div>
+      </div>`;
+    body.querySelectorAll('h3,h4,li,p,strong').forEach((el,i)=>{
+      el.style.opacity='0';el.style.transform='translateY(5px)';el.style.transition='all .3s ease';
+      setTimeout(()=>{el.style.opacity='1';el.style.transform='none';},i*15+80);
+    });
+  }catch(e){
+    body.innerHTML=`<div class="ai-section"><div style="color:#ef4444;padding:14px;line-height:1.7">
+      <b>⚠️ Gemini API 錯誤：</b>${e.message}<br>
+      <span style="font-size:12px;color:#94a3b8">請點「⚙️」確認 API Key 正確，或清空 API Key 使用本地分析引擎。<br>
+      免費取得 API Key：<a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#60a5fa">Google AI Studio ↗</a></span>
+    </div></div>`;
+  }
+  btn.classList.remove("ld");
+}
+function switchAITab(tab,el){
+  document.querySelectorAll('.ai-tab-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('aiTabOverall').style.display=tab==='overall'?'':'none';
+  document.getElementById('aiTabClinic').style.display=tab==='clinic'?'':'none';
+}
+function buildGeminiFetch(){
+  const headers={'Content-Type':'application/json'};
+  let url;
+  if(GEMINI_KEY.startsWith('AIza')){
+    // 舊格式 AIzaSy...：v1beta + ?key= 查詢參數
+    url=`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`;
+  } else {
+    // 新格式 AQ. ...：v1 + x-goog-api-key header
+    url=`https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent`;
+    headers['x-goog-api-key']=GEMINI_KEY;
+  }
+  return {url,headers};
+}
+async function callGemini(prompt){
+  const {url,headers}=buildGeminiFetch(prompt);
+  const res=await fetch(url,{method:'POST',headers,body:JSON.stringify({
+    contents:[{parts:[{text:prompt}]}],
+    generationConfig:{temperature:0.7,maxOutputTokens:4096,topP:0.9}
+  })});
+  if(!res.ok){const err=await res.json().catch(()=>({}));const em=err.error?.message||`HTTP ${res.status}`;if(em.includes('high demand')||em.includes('overloaded'))throw new Error('🔄 模型目前需求量大，請稍後 30 秒再試一次。');throw new Error(em);}
+  const j=await res.json();
+  return j.candidates?.[0]?.content?.parts?.[0]?.text||'（無回傳內容）';
+}
+// ═══════════════════════════════════════════════
+//  AI 問答對話框
+// ═══════════════════════════════════════════════
+let chatHistory=[]; // {role:'user'|'model', parts:[{text}]}
+
+function updateChatHint(){
+  const hint=document.getElementById('chatHint');
+  if(!hint)return;
+  hint.textContent=GEMINI_KEY?'（輸入問題按 Ctrl/Cmd+Enter 送出）':'（請先在 ⚙️ 設定 Gemini API Key）';
+}
+
+function askSuggestion(btn){
+  const q=btn.textContent;
+  document.getElementById('chatInput').value=q;
+  sendChat();
+}
+
+async function sendChat(){
+  if(!GEMINI_KEY){
+    document.getElementById('chatStatus').textContent='⚠️ 請先點「⚙️」設定 Gemini API Key';
+    return;
+  }
+  const input=document.getElementById('chatInput');
+  const q=input.value.trim();
+  if(!q)return;
+  input.value='';
+  document.getElementById('chatSuggestions').style.display='none';
+
+  const msgs=document.getElementById('chatMsgs');
+  // Add user bubble
+  msgs.innerHTML+=`<div class="chat-msg user">
+    <div class="chat-avatar">👤</div>
+    <div class="bubble">${q.replace(/</g,'&lt;')}</div>
+  </div>`;
+  // Add AI typing bubble
+  const typingId='typing_'+Date.now();
+  msgs.innerHTML+=`<div class="chat-msg ai" id="${typingId}">
+    <div class="chat-avatar">🤖</div>
+    <div class="bubble"><div class="typing-dot"><span></span><span></span><span></span></div></div>
+  </div>`;
+  msgs.scrollTop=msgs.scrollHeight;
+
+  const btn=document.getElementById('chatSendBtn');
+  btn.disabled=true;
+  document.getElementById('chatStatus').textContent='AI 思考中…';
+
+  try{
+    const cur=periods[curIdx],prev=getPrev(curIdx),yoy=getYoy(curIdx);
+    const sysCtx=buildDataContext(cur,prev,yoy);
+
+    // Build multi-turn conversation
+    const contents=[
+      {role:'user',parts:[{text:`你是金鶯診所集團的資深營運顧問，擁有醫療診所營運管理的深厚專業知識。請以繁體中文詳細回答問題，每個回答請：\n1. 直接引用數據佐證分析\n2. 分點說明，邏輯清晰\n3. 提供具體可操作的建議（而非籠統建議）\n4. 必要時說明背後原因與邏輯\n\n以下是當期詳細數據：\n\n${sysCtx}\n\n請根據以上數據，提供深入、專業的分析與建議。`}]},
+      {role:'model',parts:[{text:'好的，我已詳細了解金鶯診所集團本期的完整營運數據。我將根據實際數字提供深入分析。請問您想深入了解哪個面向？'}]},
+      ...chatHistory,
+      {role:'user',parts:[{text:q}]}
+    ];
+
+    const {url,headers}=buildGeminiFetch();
+    const res=await fetch(url,{method:'POST',headers,body:JSON.stringify({
+      contents,
+      generationConfig:{temperature:0.7,maxOutputTokens:2048,topP:0.9}
+    })});
+    if(!res.ok){
+    const e=await res.json().catch(()=>({}));
+    const msg=e.error?.message||`HTTP ${res.status}`;
+    if(msg.includes('quota')||msg.includes('RESOURCE_EXHAUSTED')||msg.includes('limit: 0')){
+      throw new Error('⚠️ 配額已用盡（'+GEMINI_MODEL+'）。請點 ⚙️ 切換模型（建議試 Gemini 2.5 Flash），或建立新專案的 API Key，或等待配額重置（每日重置）。');
+    }
+    if(msg.includes('high demand')||msg.includes('overloaded')||res.status===503){
+      throw new Error('🔄 模型目前需求量大，請稍後 30 秒再試一次。');
+    }
+    throw new Error(msg);
+  }
+    const j=await res.json();
+    const answer=j.candidates?.[0]?.content?.parts?.[0]?.text||'（無回覆）';
+
+    // Remove typing bubble, add real answer
+    document.getElementById(typingId)?.remove();
+    msgs.innerHTML+=`<div class="chat-msg ai">
+      <div class="chat-avatar">🤖</div>
+      <div class="bubble">${md2html(answer)}</div>
+    </div>`;
+    msgs.scrollTop=msgs.scrollHeight;
+
+    // Update history (keep last 6 turns to avoid token limit)
+    chatHistory.push({role:'user',parts:[{text:q}]});
+    chatHistory.push({role:'model',parts:[{text:answer}]});
+    if(chatHistory.length>12)chatHistory=chatHistory.slice(-12);
+
+    document.getElementById('chatStatus').textContent='';
+  }catch(e){
+    document.getElementById(typingId)?.remove();
+    msgs.innerHTML+=`<div class="chat-msg ai">
+      <div class="chat-avatar">🤖</div>
+      <div class="bubble" style="color:#ef4444">⚠️ 錯誤：${e.message}</div>
+    </div>`;
+    document.getElementById('chatStatus').textContent='請確認 API Key 是否正確。';
+  }
+  btn.disabled=false;
+  input.focus();
+}
+
+function clearChat(){
+  chatHistory=[];
+  document.getElementById('chatMsgs').innerHTML='';
+  document.getElementById('chatSuggestions').style.display='flex';
+  document.getElementById('chatStatus').textContent='';
+}
+
+function buildDataContext(cur,prev,yoy){
+  const c1=sumC(cur.months,'健保人次'),c3=yoy?sumC(yoy.months,'健保人次'):{};
+  const s1=sumC(cur.months,'診所銷售金額');
+  const w1=sumC(cur.months,'減重人次');
+  const all=[...new Set(D.map(r=>r.clinic))].filter(c=>c1[c]>0).sort((a,b)=>(c1[b]||0)-(c1[a]||0));
+  let ctx=`## 分析期間：${cur.lbl}\n\n`;
+  ctx+=`## 集團 KPI 摘要\n`;
+  METRICS.forEach(m=>{
+    const v1=sumMs(cur.months,m.key),v3=yoy?sumMs(yoy.months,m.key):0;
+    const py=v3>0?pct(v1,v3):null;
+    ctx+=`- ${m.lbl}：${fmt(v1,m.fmt)}${m.unit}${py!==null?`（YoY ${ps(py)}`+(yoy?'，'+yoy.lbl+fmt(v3,m.fmt)+m.unit:'')+'）':''}\n`;
+  });
+  ctx+=`\n## 各院區詳細數據\n`;
+  all.forEach(c=>{
+    const py=c3[c]>0?pct(c1[c],c3[c]):null;
+    ctx+=`- ${c}：健保人次 ${(c1[c]||0).toLocaleString()}${py!==null?`（YoY ${ps(py)}`:'（新設'})，診所銷售 ${((s1[c]||0)/10000).toFixed(1)}萬，減重 ${(w1[c]||0).toLocaleString()}人\n`;
+  });
+  ctx+=`\n健保核定率：${(KDZL*100).toFixed(0)}%`;
+  return ctx;
+}
+
+function buildGeminiPrompt(cur,prev,yoy,mode){
+  const c1=sumC(cur.months,'健保人次'),c3=yoy?sumC(yoy.months,'健保人次'):{};
+  const s1=sumC(cur.months,'診所銷售金額'),sy=yoy?sumC(yoy.months,'診所銷售金額'):{};
+  const w1=sumC(cur.months,'減重人次'),wy=yoy?sumC(yoy.months,'減重人次'):{};
+  const all=[...new Set(D.map(r=>r.clinic))].filter(c=>c1[c]>0).sort((a,b)=>(c1[b]||0)-(c1[a]||0));
+  let kpiTbl='| 指標 | 本期 | 上期 | 環比 | 去年同期 | YoY |\n|---|---|---|---|---|---|\n';
+  METRICS.forEach(m=>{
+    const v1=sumMs(cur.months,m.key),v2=prev?sumMs(prev.months,m.key):0,v3=yoy?sumMs(yoy.months,m.key):0;
+    const pp=v2>0?pct(v1,v2):null,py=v3>0?pct(v1,v3):null;
+    kpiTbl+=`| ${m.lbl} | ${fmt(v1,m.fmt)}${m.unit} | ${v2>0?fmt(v2,m.fmt)+m.unit:'—'} | ${pp!==null?ps(pp):'—'} | ${v3>0?fmt(v3,m.fmt)+m.unit:'—'} | ${py!==null?ps(py):'—'} |\n`;
+  });
+  let cTbl='| 院區 | 健保人次 | YoY% | 銷售(萬) | 減重 |\n|---|---|---|---|---|\n';
+  all.forEach(c=>{
+    const py=c3[c]>0?pct(c1[c],c3[c]):null;
+    cTbl+=`| ${c} | ${(c1[c]||0).toLocaleString()} | ${py!==null?ps(py):'新設'} | ${((s1[c]||0)/10000).toFixed(1)} | ${(w1[c]||0).toLocaleString()} |\n`;
+  });
+  const base=`你是金鶯診所集團的資深營運顧問，請以繁體中文分析以下數據。
+
+## 分析期間：${cur.lbl}（${prev?'上期：'+prev.lbl:''}，${yoy?'去年同期：'+yoy.lbl:''}）
+
+## 集團 KPI
+${kpiTbl}
+## 各院區
+${cTbl}
+集團背景：健保門診＋自費減重門診（GLP-1 針劑等）＋診所銷售，${all.length} 院區，桃園/新北地區。健保點數已依 ${(KDZL*100).toFixed(0)}% 核定率調整。`;
+  if(mode==='overall') return base+`
+
+請提供深入的整體營運分析報告（900-1200字，使用 Markdown 格式），必須引用具體數字：
+
+### 一、本期亮點（2-3項）
+- 說明哪些指標表現突出，與上期/去年同期相比的具體數字變化
+
+### 二、本期挑戰與警示（2-3項）
+- 說明哪些指標出現警訊，分析可能原因（非僅描述數字）
+
+### 三、優先行動建議（3-5條）
+每條建議格式：
+🔴緊急/🟡重要/🔵追蹤 **[院區或議題]**：具體行動步驟 → 預期改善幅度
+
+### 四、下期 KPI 目標
+列出主要指標的建議目標值，說明設定依據
+
+### 五、風險預警
+1-2個需重點關注的潛在風險及應對方向`;
+  else return base+`
+
+請針對以下每個院區逐一深入分析（每個院區 150-200 字）：
+院區清單：${all.join('、')}
+
+每個院區格式（用 ### 分隔）：
+### [院區名稱]
+**現況評估**：引用具體數字說明人次、銷售、減重表現及趨勢
+**問題診斷**：找出該院區最需改善的 1-2 個問題，說明原因
+**具體建議**：2 條可立即執行的具體行動（非籠統建議）
+**下期目標**：設定 1-2 個可量化的具體目標數值
+
+請用繁體中文、Markdown 格式回覆，內容須深入且具操作性。`;
+}
+
+function analyzeData(cur,prev,yoy){
+  const res={kpis:{},clinics:{},insights:[],actions:[]};
+
+  // KPI 分析
+  METRICS.forEach(m=>{
+    const v1=sumMs(cur.months,m.key),v2=prev?sumMs(prev.months,m.key):0,v3=yoy?sumMs(yoy.months,m.key):0;
+    res.kpis[m.key]={cur:v1,prev:v2,yoy:v3,pp:v2>0?pct(v1,v2):null,py:v3>0?pct(v1,v3):null};
+  });
+
+  // 院區分析
+  const c1=sumC(cur.months,"健保人次"),c3=yoy?sumC(yoy.months,"健保人次"):{};
+  const s1=sumC(cur.months,"診所銷售金額"),sy=yoy?sumC(yoy.months,"診所銷售金額"):{};
+  const w1=sumC(cur.months,"減重人次"),wy=yoy?sumC(yoy.months,"減重人次"):{};
+  const all=[...new Set(D.map(r=>r.clinic))].filter(c=>c1[c]>0);
+  res.clinics.total=all.length;
+  res.clinics.newOnes=all.filter(c=>!(c3[c]>0));
+  res.clinics.sorted=all.sort((a,b)=>(c1[b]||0)-(c1[a]||0));
+  res.clinics.topSales=Object.entries(s1).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([c,v])=>({c,v}));
+  res.clinics.topWeight=Object.entries(w1).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([c,v])=>({c,v}));
+
+  // YoY 比較院區（可比較的）
+  const cmpC=all.filter(c=>c3[c]>0);
+  res.clinics.gainers=cmpC.filter(c=>pct(c1[c],c3[c])>0.05).map(c=>({c,py:pct(c1[c],c3[c])})).sort((a,b)=>b.py-a.py);
+  res.clinics.losers=cmpC.filter(c=>pct(c1[c],c3[c])<-0.05).map(c=>({c,py:pct(c1[c],c3[c])})).sort((a,b)=>a.py-b.py);
+  res.clinics.c1=c1;res.clinics.c3=c3;res.clinics.s1=s1;res.clinics.w1=w1;res.clinics.wy=wy;
+  return res;
+}
+
+function buildAIHTML(a,cur,prev,yoy){
+  const k=a.kpis,c=a.clinics;
+  const roc=y=>y-1911;
+
+  // 健保人次整體判斷
+  const ptYoy=k["健保人次"].py,ptPrev=k["健保人次"].pp;
+  const salesYoy=k["診所銷售金額"].py,weightYoy=k["減重人次"].py;
+  const overallGrade=ptYoy>0.1?"強勁成長":ptYoy>0?"穩健成長":ptYoy>-0.1?"持平略降":"需要關注";
+  const gradeColor=ptYoy>0.1?"good":ptYoy>0?"good":ptYoy>-0.1?"warn":"bad";
+
+  // 動態生成洞察文字
+  const pStr=p=>p===null?"（無去年資料）":`${p>0?"▲":p<0?"▼":"—"} ${(p*100).toFixed(1)}%`;
+
+  let html=`
+  <!-- 總覽摘要 -->
+  <div class="ai-section">
+    <div class="ai-sec-title">🎯 本期整體表現摘要</div>
+    <div class="ai-summary">
+      <div class="ai-sum-card ${gradeColor}">
+        <div class="asc-icon">🏥</div>
+        <div class="asc-val">${overallGrade}</div>
+        <div class="asc-lbl">整體評級</div>
+      </div>
+      <div class="ai-sum-card ${ptYoy===null?"warn":ptYoy>0?"good":"bad"}">
+        <div class="asc-icon">📊</div>
+        <div class="asc-val">${ptYoy===null?"新設":pStr(ptYoy)}</div>
+        <div class="asc-lbl">健保人次 YoY</div>
+      </div>
+      <div class="ai-sum-card ${salesYoy===null?"warn":salesYoy>0?"good":"bad"}">
+        <div class="asc-icon">💊</div>
+        <div class="asc-val">${salesYoy===null?"新設":pStr(salesYoy)}</div>
+        <div class="asc-lbl">診所銷售 YoY</div>
+      </div>
+      <div class="ai-sum-card ${weightYoy===null?"warn":weightYoy>0?"good":"bad"}">
+        <div class="asc-icon">⚖️</div>
+        <div class="asc-val">${weightYoy===null?"新設":pStr(weightYoy)}</div>
+        <div class="asc-lbl">減重人次 YoY</div>
+      </div>
+      <div class="ai-sum-card good">
+        <div class="asc-icon">🏢</div>
+        <div class="asc-val">${c.total} 院區</div>
+        <div class="asc-lbl">服務院區${c.newOnes.length>0?`（新設 ${c.newOnes.length}）`:""}
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  // 亮點
+  let highlights=[];
+  if(salesYoy!==null&&salesYoy>0.2) highlights.push({cls:"green",icon:"🚀",title:`診所銷售金額大幅成長 ${pStr(salesYoy)}`,body:`${cur.lbl}診所銷售達 ${(k["診所銷售金額"].cur/10000).toFixed(1)} 萬元，較去年同期顯著提升，顯示自費服務及商品銷售策略奏效。建議持續擴大品項，並針對高業績院區提取最佳實踐推廣至全集團。`});
+  if(weightYoy!==null&&weightYoy>0.2) highlights.push({cls:"green",icon:"⚖️",title:`減重業務高速成長 ${pStr(weightYoy)}`,body:`減重人次 ${fmt(k["減重人次"].cur,"num")} 人，YoY 成長強勁，是集團核心差異化競爭力。建議持續強化減重門診排班、開發輔助商品銷售，並加速將成功模式複製至成長空間較大的院區。`});
+  if(c.newOnes.length>0) highlights.push({cls:"purple",icon:"🆕",title:`${c.newOnes.length} 家新設院區進入市場`,body:`新設院區（${c.newOnes.join("、")}）已開始累積業務量，為集團規模擴張重要一步。建議每月追蹤各新院區損益進度，並由績效較佳院區提供業務輔導。`});
+  if(c.topSales.length>0){const top=c.topSales[0];highlights.push({cls:"blue",icon:"🏆",title:`${top.c} 診所銷售居集團之冠`,body:`${top.c} 本期診所銷售 ${(top.v/10000).toFixed(1)} 萬元，排名第一。建議深入分析其銷售流程、諮詢技巧及商品組合，提煉標準化 SOP 並導入其他院區。`});}
+  if(ptYoy!==null&&ptYoy<-0.05&&c.losers.length>0){const l=c.losers[0];highlights.push({cls:"orange",icon:"⚠️",title:`${l.c} 健保人次 YoY 下滑 ${(Math.abs(l.py)*100).toFixed(1)}%`,body:`${l.c} 去年同期比較出現下滑，需要優先關注。建議分析就診來源變化、周邊競爭環境，並考慮調整診別組合或強化特色服務。`});}
+
+  html+=`<div class="ai-section"><div class="ai-sec-title">✨ 亮點與成長動能</div><div class="ai-cards">${highlights.map(h=>`<div class="ai-card ${h.cls}"><div class="ac-head">${h.icon} ${h.title}</div><div class="ac-body">${h.body}</div></div>`).join("")}</div></div>`;
+
+  // 院區洞察
+  let clinicInsights=[];
+  if(c.gainers.length>0){
+    const top3=c.gainers.slice(0,3);
+    clinicInsights.push({cls:"green",icon:"🌟",title:"健保人次 YoY 成長院區",body:`<b>${top3.map(x=>`${x.c}(${(x.py*100).toFixed(1)}%)`).join("、")}</b> 表現突出，建議研究其成功因素，包括醫師組合、診別特色及行銷策略，作為其他院區學習範本。`});
+  }
+  if(c.losers.length>0){
+    const bot=c.losers.slice(0,2);
+    clinicInsights.push({cls:"red",icon:"📉",title:"健保人次 YoY 下滑院區",body:`<b>${bot.map(x=>`${x.c}(${(x.py*100).toFixed(1)}%)`).join("、")}</b> 出現人次下滑，建議立即進行診所評估：① 確認醫師異動影響 ② 分析患者流失原因 ③ 強化社區行銷 ④ 評估診別調整空間。`});
+  }
+  const topW=c.topWeight.slice(0,2);
+  if(topW.length>0) clinicInsights.push({cls:"blue",icon:"⚖️",title:"減重業務明星院區",body:`<b>${topW.map(x=>`${x.c}(${x.v}人)`).join("、")}</b> 減重人次居前，是集團減重品牌的核心支撐。建議擴充減重門診名額，深化與患者的長期追蹤關係，並利用成效案例強化口碑行銷。`});
+
+  html+=`<div class="ai-section"><div class="ai-sec-title">🏥 院區層級洞察</div><div class="ai-cards">${clinicInsights.map(h=>`<div class="ai-card ${h.cls}"><div class="ac-head">${h.icon} ${h.title}</div><div class="ac-body">${h.body}</div></div>`).join("")}</div></div>`;
+
+  // 具體行動建議
+  const actions=[];
+  if(salesYoy!==null&&salesYoy>0.15) actions.push({pri:"p2",text:`<b>建立診所銷售標準化 SOP</b>：${cur.lbl} 診所銷售 YoY ${pStr(salesYoy)}，建議提煉 ${c.topSales[0]?.c||""}等高業績院區的銷售話術及商品推薦流程，導入全集團，目標下季整體銷售再成長 15%。`});
+  if(weightYoy!==null&&weightYoy>0.15) actions.push({pri:"p1",text:`<b>擴大減重門診容量</b>：減重人次 YoY ${pStr(weightYoy)}，需求旺盛。建議 ① 增加減重門診診次 ② 引進新型減重針劑品項 ③ 建立減重患者回診追蹤機制 ④ 設計減重套餐提升客單價。`});
+  if(c.newOnes.length>0) actions.push({pri:"p2",text:`<b>新院區 90 天扶植計畫</b>：${c.newOnes.join("、")} 正式投入運營，建議制定明確的前三個月 KPI 目標（健保人次、減重人次、診所銷售），並由集團輔導小組每月駐點輔導。`});
+  if(c.losers.length>0) actions.push({pri:"p1",text:`<b>下滑院區緊急診斷</b>：${c.losers.slice(0,2).map(x=>x.c).join("、")} YoY 人次下滑，建議下個月完成 ① 病患來源分析 ② 競爭環境調查 ③ 醫師排班優化 ④ 社區行銷方案制定。`});
+  actions.push({pri:"p3",text:`<b>健保點數資料完整性確認</b>：${cur.lbl} 最後一個月健保點數尚未完整申報，待資料到位後重新核算季度表現，確保管理決策基於完整數字。建議設立每月固定的資料審查日。`});
+  actions.push({pri:"p3",text:`<b>桃園及土城院區藥局業務評估</b>：此兩院區藥局申報件數為 0，建議評估設置附設藥局的可行性，預估可增加每月 40-80 萬點申報點值，提升整體收入結構。`});
+
+  html+=`<div class="ai-section"><div class="ai-sec-title">🎯 具體行動建議（依優先級排序）</div><div class="ai-actions">${actions.map(a=>`<div class="ai-action"><span class="aa-pri ${a.pri}">${a.pri==="p1"?"🔴 緊急":a.pri==="p2"?"🟡 重要":"🔵 追蹤"}</span><div class="aa-text">${a.text}</div></div>`).join("")}</div></div>`;
+
+  // 下季目標建議
+  const nextQ=mode==='Q'?`${cur.yr-1911}年Q${cur.q<4?cur.q+1:1}（${cur.q<4?"下季":"明年Q1"}）`:"下個月";
+  html+=`<div class="ai-section"><div class="ai-sec-title">🔮 ${nextQ} 目標建議</div><div class="ai-cards">
+    <div class="ai-card blue"><div class="ac-head">🏥 健保人次目標</div><div class="ac-body">建議目標：<b>${Math.round(k["健保人次"].cur*1.05).toLocaleString("zh-TW")} 人</b>（環比+5%），重點在於強化舊患回診率與新患開發。</div></div>
+    <div class="ai-card green"><div class="ac-head">⚖️ 減重人次目標</div><div class="ac-body">建議目標：<b>${Math.round(k["減重人次"].cur*1.1).toLocaleString("zh-TW")} 人</b>（環比+10%），透過增加診次與口碑行銷達成。</div></div>
+    <div class="ai-card orange"><div class="ac-head">💊 診所銷售目標</div><div class="ac-body">建議目標：<b>${((k["診所銷售金額"].cur/10000)*1.08).toFixed(1)} 萬元</b>（環比+8%），透過 SOP 標準化與商品組合優化達成。</div></div>
+  </div></div>`;
+
+  return html;
+}
+
+async function streamHTML(container, html){
+  container.innerHTML=html;
+  // Animate cards in
+  container.querySelectorAll('.ai-card,.ai-action,.ai-sum-card').forEach((el,i)=>{
+    el.style.opacity='0';el.style.transform='translateY(10px)';el.style.transition='opacity .4s ease,transform .4s ease';
+    setTimeout(()=>{el.style.opacity='1';el.style.transform='translateY(0)';},i*60+200);
+  });
+}
+
+function ctrs(){
+  document.querySelectorAll(".ctr[data-v]").forEach(el=>{
+    if(el.dataset.done)return;el.dataset.done="1";
+    const tv=+el.dataset.v,tp=el.dataset.t||"num",dur=900,s=performance.now();
+    const step=now=>{
+      const p=Math.min((now-s)/dur,1),e=1-Math.pow(1-p,3),v=e*tv;
+      el.textContent=tp==="wan"?(v/10000).toFixed(1):Math.round(v).toLocaleString("zh-TW");
+      if(p<1)requestAnimationFrame(step);
+      else el.textContent=tp==="wan"?(tv/10000).toFixed(1):Math.round(tv).toLocaleString("zh-TW");
+    };
+    requestAnimationFrame(step);
+  });
+}
+function show(id){const e=document.getElementById(id);e.style.display="flex";e.classList.remove("hide")}
+function hide(id){const e=document.getElementById(id);e.classList.add("hide");setTimeout(()=>e.style.display="none",400)}
+window.addEventListener("load",init);
+</script>
+
+<!-- ── Settings Modal ── -->
+<div id="settingsOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;backdrop-filter:blur(4px)" onclick="closeSettings()"></div>
+<div id="settingsPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1e1e2e;border:1px solid #3f3f5a;border-radius:16px;padding:28px 32px;width:min(480px,92vw);z-index:10000;color:#e2e8f0">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <h3 style="margin:0;font-size:16px;color:#a78bfa">⚙️ 儀表板設定</h3>
+    <button onclick="closeSettings()" style="background:none;border:none;color:#94a3b8;font-size:18px;cursor:pointer">✕</button>
+  </div>
+  <!-- 核定率 -->
+  <div style="margin-bottom:22px">
+    <label style="display:block;font-size:13px;color:#94a3b8;margin-bottom:8px">🏥 健保核定率（健保點數 × 核定率 顯示）</label>
+    <div style="display:flex;align-items:center;gap:12px">
+      <input type="range" id="kdzlRange" min="50" max="100" step="1" value="90"
+        oninput="document.getElementById('kdzlVal').textContent=this.value+'%'"
+        style="flex:1;accent-color:#a78bfa">
+      <span id="kdzlVal" style="font-size:20px;font-weight:700;color:#a78bfa;min-width:48px">90%</span>
+    </div>
+    <div style="font-size:11px;color:#64748b;margin-top:4px">原始申報點數 × 核定率 = 儀表板顯示值（預設 90%）</div>
+  </div>
+  <!-- Gemini Key -->
+  <div style="margin-bottom:22px">
+    <label style="display:block;font-size:13px;color:#94a3b8;margin-bottom:8px">🤖 Gemini API Key（選填，啟用真實 AI 分析）</label>
+    <input type="password" id="geminiKeyInput" placeholder="AIza..." autocomplete="off"
+      style="width:100%;padding:10px 12px;background:#0f0f1a;border:1px solid #3f3f5a;border-radius:8px;color:#e2e8f0;font-size:13px;box-sizing:border-box">
+    <div style="font-size:11px;color:#64748b;margin-top:4px">前往 <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#60a5fa">Google AI Studio</a> 取得免費 API Key。建議使用 <b style="color:#6ee7b7">Gemini 1.5 Flash（免費層，每分鐘 15 次）</b>。</div>
+  </div>
+  <!-- Gemini Model -->
+  <div style="margin-bottom:22px">
+    <label style="display:block;font-size:13px;color:#94a3b8;margin-bottom:8px">🧠 Gemini 模型</label>
+    <select id="geminiModel" style="width:100%;padding:10px 12px;background:#0f0f1a;border:1px solid #3f3f5a;border-radius:8px;color:#e2e8f0;font-size:13px">
+      <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite ✅（免費層，推薦）</option>
+      <option value="gemini-2.5-flash">Gemini 2.5 Flash ✅（最新免費層）</option>
+      <option value="gemini-2.0-flash">Gemini 2.0 Flash（免費層，配額較少）</option>
+      <option value="gemini-2.5-pro">Gemini 2.5 Pro（最強，可能需付費）</option>
+    </select>
+  </div>
+  <button onclick="saveSettings()" style="width:100%;padding:12px;background:linear-gradient(135deg,#7c3aed,#4f46e5);border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:600;cursor:pointer">💾 儲存設定</button>
+  <div id="settingsSaved" style="display:none;text-align:center;margin-top:10px;color:#10b981;font-size:12px">✅ 已儲存！</div>
+</div>
+
+<!-- ── NotebookLM Export Modal ── -->
+<div id="nlmOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;backdrop-filter:blur(4px)" onclick="closeNLM()"></div>
+<div id="nlmPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1e1e2e;border:1px solid #3f3f5a;border-radius:16px;padding:28px 32px;width:min(560px,94vw);z-index:10000;color:#e2e8f0;max-height:90vh;overflow-y:auto">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <h3 style="margin:0;font-size:16px;color:#60a5fa">📓 匯出至 NotebookLM</h3>
+    <button onclick="closeNLM()" style="background:none;border:none;color:#94a3b8;font-size:18px;cursor:pointer">✕</button>
+  </div>
+  <div style="font-size:13px;color:#94a3b8;margin-bottom:14px;line-height:1.6">
+    已將本期數據整理成結構化文件。請按以下步驟：<br>
+    <b style="color:#e2e8f0">① 點擊「複製資料」</b> → <b style="color:#e2e8f0">② 前往 NotebookLM</b> → <b style="color:#e2e8f0">③ 新增來源 → 貼上文字</b>
+  </div>
+  <textarea id="nlmText" readonly style="width:100%;height:200px;background:#0f0f1a;border:1px solid #3f3f5a;border-radius:8px;color:#94a3b8;font-size:11px;padding:10px;resize:vertical;box-sizing:border-box;font-family:monospace"></textarea>
+  <div style="display:flex;gap:10px;margin-top:14px">
+    <button onclick="copyNLM()" style="flex:1;padding:12px;background:#1d4ed8;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer">📋 複製資料</button>
+    <a href="https://notebooklm.google.com" target="_blank" style="flex:1;padding:12px;background:#10b981;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center">🔗 開啟 NotebookLM</a>
+  </div>
+  <div id="nlmCopied" style="display:none;text-align:center;margin-top:8px;color:#10b981;font-size:12px">✅ 已複製到剪貼簿！</div>
+</div>
+
+</body>
+</html>
