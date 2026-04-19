@@ -1146,16 +1146,26 @@ async function sendChat(){
     const compact=chatHistory.length>8;
     const sysCtx=buildDataContext(cur,prev,yoy,compact);
 
-    // Build multi-turn conversation
+    // systemInstruction 獨立放數據背景，不佔對話 token
+    const systemInstruction={parts:[{text:
+      `你是金鶯診所集團的資深營運顧問，擁有醫療診所營運管理專業。\n`+
+      `請以繁體中文回答，必須：引用具體數字、分點說明、給可操作建議。\n\n`+
+      `═══ 當期營運數據背景 ═══\n${sysCtx}`
+    }]};
+
+    // 對話內容只保留歷史 + 新問題（不再把數據塞進 contents）
+    const recentHistory=chatHistory.slice(-8); // 只取最近 4 輪
     const contents=[
-      {role:'user',parts:[{text:`你是金鶯診所集團的資深營運顧問，請以繁體中文詳細回答，直接引用數據，提供具體可操作建議。\n\n${sysCtx}`}]},
-      {role:'model',parts:[{text:'已了解金鶯診所集團本期營運數據，請問您的問題？'}]},
-      ...chatHistory,
+      ...recentHistory,
       {role:'user',parts:[{text:q}]}
     ];
 
     const statusEl=document.getElementById('chatStatus');
-    const answer=await callGeminiWithRetry({contents,generationConfig:{temperature:0.7,maxOutputTokens:2048,topP:0.9}},4,statusEl);
+    const answer=await callGeminiWithRetry({
+      system_instruction:systemInstruction,
+      contents,
+      generationConfig:{temperature:0.7,maxOutputTokens:4096,topP:0.9}
+    },4,statusEl);
 
     // Remove typing bubble, add real answer
     document.getElementById(typingId)?.remove();
@@ -1165,10 +1175,10 @@ async function sendChat(){
     </div>`;
     msgs.scrollTop=msgs.scrollHeight;
 
-    // Update history (keep last 6 turns to avoid token limit)
+    // 保留最近 8 輪對話（16 筆）
     chatHistory.push({role:'user',parts:[{text:q}]});
     chatHistory.push({role:'model',parts:[{text:answer}]});
-    if(chatHistory.length>12)chatHistory=chatHistory.slice(-12);
+    if(chatHistory.length>16)chatHistory=chatHistory.slice(-16);
 
     document.getElementById('chatStatus').textContent='';
   }catch(e){
