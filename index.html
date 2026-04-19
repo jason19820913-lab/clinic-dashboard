@@ -1142,27 +1142,20 @@ async function sendChat(){
 
   try{
     const cur=periods[curIdx],prev=getPrev(curIdx),yoy=getYoy(curIdx);
-    // 對話歷史超過 4 輪時改用精簡數據，節省 token
-    const compact=chatHistory.length>8;
-    const sysCtx=buildDataContext(cur,prev,yoy,compact);
+    // 對話一律用精簡模式，節省 token（完整模式留給 AI 建議報告）
+    const sysCtx=buildDataContext(cur,prev,yoy,true);
 
-    // systemInstruction 獨立放數據背景，不佔對話 token
-    const systemInstruction={parts:[{text:
-      `你是金鶯診所集團的資深營運顧問，擁有醫療診所營運管理專業。\n`+
-      `請以繁體中文回答，必須：引用具體數字、分點說明、給可操作建議。\n\n`+
-      `═══ 當期營運數據背景 ═══\n${sysCtx}`
-    }]};
-
-    // 對話內容只保留歷史 + 新問題（不再把數據塞進 contents）
-    const recentHistory=chatHistory.slice(-8); // 只取最近 4 輪
+    // 只保留最近 3 輪對話（6 筆），避免累積過多 token
+    const recentHistory=chatHistory.slice(-6);
     const contents=[
+      {role:'user',parts:[{text:`[角色]你是金鶯診所集團資深營運顧問，用繁體中文回答，引用數字，給具體建議。\n[數據]${sysCtx}`}]},
+      {role:'model',parts:[{text:'已載入數據，請問您的問題。'}]},
       ...recentHistory,
       {role:'user',parts:[{text:q}]}
     ];
 
     const statusEl=document.getElementById('chatStatus');
     const answer=await callGeminiWithRetry({
-      systemInstruction,
       contents,
       generationConfig:{temperature:0.7,maxOutputTokens:4096,topP:0.9}
     },4,statusEl);
