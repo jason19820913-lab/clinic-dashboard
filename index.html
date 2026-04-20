@@ -347,6 +347,7 @@ body{font-family:"Noto Sans TC","Arial",sans-serif;background:linear-gradient(13
     <div class="mode-toggle">
       <button class="mt-btn on" id="btnQ" onclick="setMode('Q')">🗓 季度</button>
       <button class="mt-btn" id="btnM" onclick="setMode('M')">📅 月度</button>
+      <button class="mt-btn" id="btnY" onclick="setMode('Y')">📆 年度</button>
     </div>
     <div class="pnav">
       <button class="parr" id="btnPrev" onclick="shift(-1)">◀</button>
@@ -648,7 +649,13 @@ function nv(v){
 function buildP(){
   const yms=[...new Set(D.map(r=>r.ym))].sort();
   periods=[];
-  if(mode==='Q'){
+  if(mode==='Y'){
+    const yrs=new Set(yms.map(ym=>ym.slice(0,4)));
+    [...yrs].sort().forEach(yr=>{
+      const ms=yms.filter(ym=>ym.startsWith(yr));
+      if(ms.length) periods.push({id:`${yr}`,lbl:`${+yr-1911}年`,sub:`${ms[0].slice(5)}月～${ms[ms.length-1].slice(5)}月`,months:ms,am:ms,yr:+yr});
+    });
+  } else if(mode==='Q'){
     const qs=new Set();
     yms.forEach(ym=>{const yr=+ym.slice(0,4),mo=+ym.slice(5,7),q=Math.ceil(mo/3);qs.add(`${yr}-${q}`);});
     [...qs].sort().forEach(s=>{
@@ -667,6 +674,7 @@ function buildP(){
 const getPrev=i=>i>0?periods[i-1]:null;
 function getYoy(i){
   const p=periods[i];
+  if(mode==='Y') return null; // 年度模式無 YoY（前期即去年）
   const tid=mode==='Q'?`${p.yr-1}-Q${p.q}`:`${p.yr-1}-${String(p.mo).padStart(2,"0")}`;
   return periods.find(x=>x.id===tid)||null;
 }
@@ -675,6 +683,7 @@ function setMode(m){
   mode=m;
   document.getElementById("btnQ").classList.toggle("on",m==="Q");
   document.getElementById("btnM").classList.toggle("on",m==="M");
+  document.getElementById("btnY").classList.toggle("on",m==="Y");
   buildP(); curIdx=periods.length-1; aV="cur"; resetAI(); renderQS(); render();
 }
 function shift(d){const ni=curIdx+d;if(ni<0||ni>=periods.length)return;curIdx=ni;aV="cur";resetAI();renderQS();render();}
@@ -708,7 +717,7 @@ function render(){
   document.getElementById("pSub").textContent=cur.sub;
   document.getElementById("cPrev").textContent=prev?prev.lbl:"無";
   document.getElementById("cYoy").textContent=yoy?yoy.lbl:"無";
-  document.getElementById("spSec").textContent=mode==='Q'?"📅 季內月別細項":"📅 前後月對比";
+  document.getElementById("spSec").textContent=mode==='Q'?"📅 季內月別細項":mode==='Y'?"📅 年內季別細項":"📅 前後月對比";
   document.getElementById("aiPeriodLbl").textContent=`分析期間：${cur.lbl}${prev?" ／ "+prev.lbl:""} ／ ${yoy?yoy.lbl:"去年無資料"}`;
   // Notice
   const lm=cur.am[cur.am.length-1];
@@ -1398,7 +1407,7 @@ function buildAIHTML(a,cur,prev,yoy){
   html+=`<div class="ai-section"><div class="ai-sec-title">🎯 具體行動建議（依優先級排序）</div><div class="ai-actions">${actions.map(a=>`<div class="ai-action"><span class="aa-pri ${a.pri}">${a.pri==="p1"?"🔴 緊急":a.pri==="p2"?"🟡 重要":"🔵 追蹤"}</span><div class="aa-text">${a.text}</div></div>`).join("")}</div></div>`;
 
   // 下季目標建議
-  const nextQ=mode==='Q'?`${cur.yr-1911}年Q${cur.q<4?cur.q+1:1}（${cur.q<4?"下季":"明年Q1"}）`:"下個月";
+  const nextQ=mode==='Y'?`${cur.yr-1911+1}年`:mode==='Q'?`${cur.yr-1911}年Q${cur.q<4?cur.q+1:1}（${cur.q<4?"下季":"明年Q1"}）`:"下個月";
   html+=`<div class="ai-section"><div class="ai-sec-title">🔮 ${nextQ} 目標建議</div><div class="ai-cards">
     <div class="ai-card blue"><div class="ac-head">🏥 健保人次目標</div><div class="ac-body">建議目標：<b>${Math.round(k["健保人次"].cur*1.05).toLocaleString("zh-TW")} 人</b>（環比+5%），重點在於強化舊患回診率與新患開發。</div></div>
     <div class="ai-card green"><div class="ac-head">⚖️ 減重人次目標</div><div class="ac-body">建議目標：<b>${Math.round(k["減重人次"].cur*1.1).toLocaleString("zh-TW")} 人</b>（環比+10%），透過增加診次與口碑行銷達成。</div></div>
