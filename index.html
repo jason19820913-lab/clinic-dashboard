@@ -425,10 +425,9 @@ body{font-family:"Noto Sans TC","Arial",sans-serif;background:linear-gradient(13
     <div class="chart-tabs" id="trendTabs"></div>
     <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
   </div>
-  <div class="sec">🕸 院區多維對比（當期）</div>
-  <div class="chart-outer two-col">
-    <div class="chart-wrap half"><canvas id="radarChart"></canvas></div>
-    <div class="chart-wrap half"><canvas id="clinicBarChart"></canvas></div>
+  <div class="sec">📊 院區 KPI 比較（當期）</div>
+  <div class="chart-outer">
+    <div class="chart-wrap"><canvas id="clinicBarChart"></canvas></div>
   </div>
   <div class="sec">📋 完整比較表（上一期 × 去年同期）</div>
   <div class="tbwrap"><table class="ctbl" id="ctbl"></table></div>
@@ -717,7 +716,7 @@ function render(){
   const nb=document.getElementById("nb");
   if(inc){nb.innerHTML=`⚠️ <b>${+lm.slice(5)+"月"}份</b>健保點數、初診、複診及藥局資料尚未完整申報，以現有數字呈現，數值偏低屬正常現象`;nb.style.display="block";}
   else nb.style.display="none";
-  renderMT();renderKPI(cur,prev,yoy);renderVT(cur,prev,yoy);renderCC(cur,prev,yoy);renderSP(cur);renderBars(cur);renderTbl(cur,prev,yoy);renderTrendChart();renderRadar(cur);renderClinicBar(cur);
+  renderMT();renderKPI(cur,prev,yoy);renderVT(cur,prev,yoy);renderCC(cur,prev,yoy);renderSP(cur);renderBars(cur);renderTbl(cur,prev,yoy);renderTrendChart();renderClinicBar(cur);
 }
 
 function renderMT(){
@@ -852,7 +851,7 @@ function renderTbl(cur,prev,yoy){
 // ═══════════════════════════════════════════════
 //  Chart.js 圖表
 // ═══════════════════════════════════════════════
-let trendChartInst=null, radarChartInst=null, clinicBarInst=null;
+let trendChartInst=null, clinicBarInst=null;
 
 const CHART_COLORS=['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#14b8a6','#f97316','#ec4899','#6366f1','#84cc16','#06b6d4','#d946ef'];
 const CHART_OPTS={
@@ -917,12 +916,9 @@ function drawTrend(key){
   });
 }
 
-// ── 院區雷達圖 ────────────────────────────────────
-function renderRadar(cur){
-  const canvas=document.getElementById('radarChart');
-  if(!canvas||!window.Chart)return;
-  if(radarChartInst){radarChartInst.destroy();radarChartInst=null;}
-
+// ── 院區雷達圖（已移除）────────────────────────────
+function renderRadar(){}
+function _unused_radar(cur){
   const keys=['健保人次','減重人次','診所銷售金額','OTC銷售金額','藥局申報點值'];
   const labels=['健保人次','減重人次','診所銷售','OTC銷售','藥局點值'];
   const clinics=[...new Set(D.map(r=>r.clinic))].filter(c=>{
