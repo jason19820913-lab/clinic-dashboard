@@ -430,6 +430,15 @@ body{font-family:"Noto Sans TC","Arial",sans-serif;background:linear-gradient(13
   <div class="chart-outer">
     <div class="chart-wrap"><canvas id="clinicBarChart"></canvas></div>
   </div>
+  <div class="sec">📉 各院區時間軸趨勢</div>
+  <div class="chart-outer">
+    <div class="chart-tabs" id="clinicTimelineTabs" style="margin-bottom:12px"></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <span style="font-size:12px;color:var(--mu)">顯示院區：</span>
+      <div id="clinicToggleBtns" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    </div>
+    <div class="chart-wrap" style="height:340px"><canvas id="clinicTimelineChart"></canvas></div>
+  </div>
   <div class="sec">📋 完整比較表（上一期 × 去年同期）</div>
   <div class="tbwrap"><table class="ctbl" id="ctbl"></table></div>
 </div>
@@ -725,7 +734,7 @@ function render(){
   const nb=document.getElementById("nb");
   if(inc){nb.innerHTML=`⚠️ <b>${+lm.slice(5)+"月"}份</b>健保點數、初診、複診及藥局資料尚未完整申報，以現有數字呈現，數值偏低屬正常現象`;nb.style.display="block";}
   else nb.style.display="none";
-  renderMT();renderKPI(cur,prev,yoy);renderVT(cur,prev,yoy);renderCC(cur,prev,yoy);renderSP(cur);renderBars(cur);renderTbl(cur,prev,yoy);renderTrendChart();renderClinicBar(cur);
+  renderMT();renderKPI(cur,prev,yoy);renderVT(cur,prev,yoy);renderCC(cur,prev,yoy);renderSP(cur);renderBars(cur);renderTbl(cur,prev,yoy);renderTrendChart();renderClinicBar(cur);renderClinicTimeline();
 }
 
 function renderMT(){
@@ -860,7 +869,8 @@ function renderTbl(cur,prev,yoy){
 // ═══════════════════════════════════════════════
 //  Chart.js 圖表
 // ═══════════════════════════════════════════════
-let trendChartInst=null, clinicBarInst=null;
+let trendChartInst=null, clinicBarInst=null, clinicTimelineInst=null;
+let tlMetric='健保人次', tlClinics=null; // null = 全選
 
 const CHART_COLORS=['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#14b8a6','#f97316','#ec4899','#6366f1','#84cc16','#06b6d4','#d946ef'];
 const CHART_OPTS={
@@ -987,6 +997,93 @@ function renderClinicBar(cur){
       }
     }
   });
+}
+
+// ── 各院區時間軸趨勢圖 ──────────────────────────────
+function renderClinicTimeline(){
+  const canvas=document.getElementById('clinicTimelineChart');
+  if(!canvas||!window.Chart||!periods.length)return;
+  if(clinicTimelineInst){clinicTimelineInst.destroy();clinicTimelineInst=null;}
+
+  // 建立指標切換 tabs
+  const tabEl=document.getElementById('clinicTimelineTabs');
+  const tlMetrics=['健保人次','減重人次','診所銷售金額','健保點數'];
+  const tlLabels={'健保人次':'健保人次','減重人次':'減重人次','診所銷售金額':'診所銷售','健保點數':'健保點數'};
+  tabEl.innerHTML=tlMetrics.map(k=>`<button class="chart-tab${k===tlMetric?' on':''}" onclick="setTLMetric('${k}')">${tlLabels[k]}</button>`).join('');
+
+  // 取所有院區（依當期最大值排序，取前 12）
+  const lastP=periods[periods.length-1];
+  const lastVals=sumC(lastP.months,tlMetric);
+  const allClinics=[...new Set(D.map(r=>r.clinic))]
+    .filter(c=>periods.some(p=>sumC(p.months,tlMetric)[c]>0))
+    .sort((a,b)=>(lastVals[b]||0)-(lastVals[a]||0))
+    .slice(0,12);
+
+  // 初始化選取的院區（預設全選）
+  if(!tlClinics) tlClinics=[...allClinics];
+
+  // 建立院區切換按鈕
+  const toggleEl=document.getElementById('clinicToggleBtns');
+  toggleEl.innerHTML=allClinics.map((c,i)=>{
+    const short=c.replace('院區','');
+    const col=CHART_COLORS[i%12];
+    const on=tlClinics.includes(c);
+    return`<button onclick="toggleTLClinic('${c}')" style="padding:3px 10px;border-radius:99px;border:1.5px solid ${col};background:${on?col+'33':'transparent'};color:${on?col:'#64748b'};font-size:12px;cursor:pointer;transition:.2s" id="tlbtn_${i}">${short}</button>`;
+  }).join('');
+
+  const m=METRICS.find(x=>x.key===tlMetric)||{fmt:'',unit:''};
+  const xLabels=periods.map(p=>p.lbl);
+
+  // 每個選取院區一條線
+  const datasets=allClinics
+    .filter(c=>tlClinics.includes(c))
+    .map((c,idx)=>{
+      const origIdx=allClinics.indexOf(c);
+      const col=CHART_COLORS[origIdx%12];
+      const data=periods.map(p=>{
+        const v=sumC(p.months,tlMetric)[c]||0;
+        return m.fmt==='wan'?parseFloat((v/10000).toFixed(1)):Math.round(v);
+      });
+      return{
+        label:c.replace('院區',''),data,
+        borderColor:col,backgroundColor:col+'22',
+        borderWidth:2,pointRadius:4,pointHoverRadius:6,
+        tension:0.35,fill:false
+      };
+    });
+
+  clinicTimelineInst=new Chart(canvas,{
+    type:'line',
+    data:{labels:xLabels,datasets},
+    options:{
+      ...CHART_OPTS,
+      plugins:{
+        ...CHART_OPTS.plugins,
+        legend:{
+          display:true,position:'top',
+          labels:{color:'#94a3b8',font:{size:11},padding:12,usePointStyle:true,pointStyleWidth:8}
+        },
+        tooltip:{
+          ...CHART_OPTS.plugins.tooltip,
+          mode:'index',intersect:false,
+          callbacks:{label:ctx=>`${ctx.dataset.label}：${ctx.parsed.y.toLocaleString('zh-TW')} ${m.unit}`}
+        }
+      },
+      scales:{
+        x:{...CHART_OPTS.scales.x,ticks:{...CHART_OPTS.scales.x.ticks,maxRotation:45}},
+        y:{...CHART_OPTS.scales.y,ticks:{...CHART_OPTS.scales.y.ticks,callback:v=>m.fmt==='wan'?v+'萬':v.toLocaleString()}}
+      },
+      interaction:{mode:'index',intersect:false}
+    }
+  });
+}
+function setTLMetric(k){tlMetric=k;tlClinics=null;renderClinicTimeline();}
+function toggleTLClinic(c){
+  if(!tlClinics)return;
+  const idx=tlClinics.indexOf(c);
+  if(idx>=0){if(tlClinics.length>1)tlClinics.splice(idx,1);}
+  else tlClinics.push(c);
+  renderClinicTimeline();
 }
 
 // ═══════════════════════════════════════════════
