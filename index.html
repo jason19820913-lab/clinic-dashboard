@@ -426,10 +426,6 @@ body{font-family:"Noto Sans TC","Arial",sans-serif;background:linear-gradient(13
     <div class="chart-tabs" id="trendTabs"></div>
     <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
   </div>
-  <div class="sec">📊 院區 KPI 比較（當期）</div>
-  <div class="chart-outer">
-    <div class="chart-wrap"><canvas id="clinicBarChart"></canvas></div>
-  </div>
   <div class="sec">📉 各院區時間軸趨勢</div>
   <div class="chart-outer">
     <div class="chart-tabs" id="clinicTimelineTabs" style="margin-bottom:12px"></div>
@@ -734,7 +730,7 @@ function render(){
   const nb=document.getElementById("nb");
   if(inc){nb.innerHTML=`⚠️ <b>${+lm.slice(5)+"月"}份</b>健保點數、初診、複診及藥局資料尚未完整申報，以現有數字呈現，數值偏低屬正常現象`;nb.style.display="block";}
   else nb.style.display="none";
-  renderMT();renderKPI(cur,prev,yoy);renderVT(cur,prev,yoy);renderCC(cur,prev,yoy);renderSP(cur);renderBars(cur);renderTbl(cur,prev,yoy);renderTrendChart();renderClinicBar(cur);renderClinicTimeline();
+  renderMT();renderKPI(cur,prev,yoy);renderVT(cur,prev,yoy);renderCC(cur,prev,yoy);renderSP(cur);renderBars(cur);renderTbl(cur,prev,yoy);renderTrendChart();renderClinicTimeline();
 }
 
 function renderMT(){
