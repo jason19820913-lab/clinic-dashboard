@@ -886,7 +886,8 @@ function renderTrendChart(){
 }
 function setTrendMetric(key){
   aM=key;
-  document.querySelectorAll('.chart-tab').forEach((b,i)=>b.classList.toggle('on',METRICS[i].key===key));
+  // 只更新趨勢圖的 tabs，避免影響其他區塊的 chart-tab
+  document.querySelectorAll('#trendTabs .chart-tab').forEach(b=>b.classList.toggle('on',b.getAttribute('onclick').includes(`'${key}'`)));
   document.querySelectorAll('.mbt').forEach(b=>b.classList.toggle('on',b.textContent.includes(METRICS.find(m=>m.key===key).lbl)));
   const cur=periods[curIdx];drawTrend(key);renderCC(cur,getPrev(curIdx),getYoy(curIdx));renderBars(cur);renderTbl(cur,getPrev(curIdx),getYoy(curIdx));
 }
