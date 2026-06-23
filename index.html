@@ -1621,12 +1621,41 @@ const EXPENSE_STATIC={
 };
 
 let expData={}, expYm='', expRevExpInst=null, expStackInst=null;
+let groupRevData={};  // { "2026-05": 58311734, ... } 從 Google Sheet 抓取
 
-function initExpense(){
-  // 載入靜態資料
+const GROUP_REV_SHEET='https://docs.google.com/spreadsheets/d/1waE7ZpDt7uCuBZyEkqzKHWjEUQC0agorvVMs7AlNuOg/gviz/tq?tqx=out:csv&gid=0';
+
+async function loadGroupRevenue(){
+  try{
+    const res=await fetch(GROUP_REV_SHEET);
+    if(!res.ok) throw new Error('fetch failed');
+    const txt=await res.text();
+    const lines=txt.trim().split('\n').slice(1); // skip header
+    lines.forEach(line=>{
+      const cols=line.split(',');
+      if(cols.length<2)return;
+      const raw=cols[0].replace(/"/g,'').trim();       // "2026/05"
+      const val=parseInt(cols[1].replace(/[",]/g,''),10); // 58311734
+      if(!raw||isNaN(val))return;
+      const ym=raw.replace('/','-');  // "2026-05"
+      groupRevData[ym]=val;
+    });
+    console.log('集團收入資料載入成功，共',Object.keys(groupRevData).length,'期');
+  }catch(e){
+    console.warn('集團收入試算表載入失敗，改用公式估算：',e.message);
+  }
+}
+
+async function initExpense(){
+  // 載入靜態支出資料
   expData=EXPENSE_STATIC;
   const months=Object.keys(expData).sort();
   expYm=expYm&&expData[expYm]?expYm:months[months.length-1];
+
+  // 若尚未載入集團收入資料，先抓取
+  if(Object.keys(groupRevData).length===0){
+    await loadGroupRevenue();
+  }
 
   // 月份按鈕
   const btnEl=document.getElementById('expMonthBtns');
@@ -1653,16 +1682,22 @@ function renderExpSummary(){
   const allRows=expData[expYm]||[];
   const totalExp=allRows.reduce((s,r)=>s+(r.total||0),0);
 
-  // ── 總收入：所有有資料的院區公式加總 ──
+  // ── 總收入：優先用 Google Sheet 真實數字，fallback 用公式 ──
   const clinicRows=allRows.filter(r=>!EXP_CLINIC_FILTER.includes(r.clinic));
-  let totalRev=0, revCount=0;
-  clinicRows.forEach(r=>{
-    const rev=calcClinicRevenue(r.clinic,expYm);
-    if(rev!==null){totalRev+=rev;revCount++;}
-  });
+  let totalRev=0, revCount=0, revSource='';
+  if(groupRevData[expYm]!==undefined){
+    totalRev=groupRevData[expYm];
+    revSource='sheet'; // 試算表真實數字
+  } else {
+    clinicRows.forEach(r=>{
+      const rev=calcClinicRevenue(r.clinic,expYm);
+      if(rev!==null){totalRev+=rev;revCount++;}
+    });
+    revSource=revCount>0?'formula':'none';
+  }
 
   // ── 淨利與利潤率 ──
-  const hasRev=revCount>0;
+  const hasRev=totalRev>0;
   const profit=hasRev?totalRev-totalExp:null;
   const margin=hasRev&&totalRev>0?profit/totalRev*100:null;
 
@@ -1674,9 +1709,11 @@ function renderExpSummary(){
   const marginColor=margin>=20?'#34d399':margin>=10?'#fbbf24':'#f87171';
 
   // ── 收入資料來源標注 ──
-  const revNote=revCount===clinicRows.length
-    ?`<span style="color:#22d3ee;font-size:11px">✓ ${revCount} 間院區公式合計</span>`
-    :`<span style="color:#f59e0b;font-size:11px">⚠ 僅 ${revCount}/${clinicRows.length} 間院區有配對資料</span>`;
+  const revNote=revSource==='sheet'
+    ?`<span style="color:#22d3ee;font-size:11px">✓ 來源：金鶯集團收入試算表</span>`
+    :revSource==='formula'
+      ?`<span style="color:#f59e0b;font-size:11px">⚠ 試算表無此月，改用公式估算（${revCount} 間）</span>`
+      :`<span style="color:#ef4444;font-size:11px">✗ 無收入資料</span>`;
 
   el.innerHTML=`
   <!-- 標題列 -->
@@ -1693,7 +1730,7 @@ function renderExpSummary(){
       <div style="font-size:13px;font-weight:700;color:#6ee7b7;margin-bottom:6px;letter-spacing:.5px">💰 集團估算總收入</div>
       <div style="font-size:34px;font-weight:900;color:#34d399;line-height:1">${hasRev?(totalRev/10000).toFixed(0):'—'}<span style="font-size:16px;font-weight:500;color:#6ee7b7"> 萬元</span></div>
       <div style="margin-top:8px">${revNote}</div>
-      <div style="margin-top:4px;font-size:11px;color:#475569">來源：健保人次×200＋減重×1,200＋銷售＋點數</div>
+      <div style="margin-top:4px;font-size:11px;color:#475569">${revSource==='sheet'?'金鶯集團總收入試算表（每月更新）':'估算：健保人次×200＋減重×1,200＋銷售＋點數'}</div>
     </div>
 
     <!-- 總支出 -->
