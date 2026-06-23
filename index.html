@@ -450,31 +450,34 @@ body{font-family:"Noto Sans TC","Arial",sans-serif;background:linear-gradient(13
 <div id="expenseSection" style="display:none;padding:18px;max-width:1400px;margin:0 auto">
 
   <!-- 月份選擇 -->
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap">
-    <span style="font-size:14px;color:#94a3b8;font-weight:700">📅 選擇月份：</span>
-    <div id="expMonthBtns" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px;flex-wrap:wrap">
+    <span style="font-size:16px;color:#e2e8f0;font-weight:800">📅 選擇月份：</span>
+    <div id="expMonthBtns" style="display:flex;gap:10px;flex-wrap:wrap"></div>
     <span id="expDataSrc" style="margin-left:auto;font-size:12px;color:#475569">靜態資料</span>
   </div>
 
+  <!-- 集團總覽 -->
+  <div id="expGroupSummary"></div>
+
   <!-- 收支對比 -->
   <div class="sec">💹 各院區收支對比</div>
-  <div style="background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;margin-bottom:18px">
-    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
-      <span style="font-size:13px;color:#94a3b8">收入公式：健保人次×200 ＋ 減重人次×1,200 ＋ 診所銷售 ＋ OTC銷售 ＋ 健保點數 ＋ 藥局點數</span>
-      <span id="expRevMonth" style="margin-left:auto;font-size:12px;color:#64748b"></span>
+  <div style="background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px;margin-bottom:20px">
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;padding:10px 14px;background:rgba(255,255,255,.04);border-radius:8px">
+      <span style="font-size:14px;color:#cbd5e1;font-weight:600">📌 收入公式：健保人次×200 ＋ 減重人次×1,200 ＋ 診所銷售 ＋ OTC銷售 ＋ 健保點數 ＋ 藥局點數</span>
+      <span id="expRevMonth" style="margin-left:auto;font-size:13px;font-weight:700;color:#60a5fa"></span>
     </div>
-    <div class="chart-wrap" style="height:380px"><canvas id="expRevExpChart"></canvas></div>
+    <div class="chart-wrap" style="height:400px"><canvas id="expRevExpChart"></canvas></div>
   </div>
 
   <!-- 集團支出總覽 -->
   <div class="sec">📊 各院區支出結構（類別佔比）</div>
-  <div style="background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;margin-bottom:18px">
-    <div class="chart-wrap" style="height:400px"><canvas id="expStackChart"></canvas></div>
+  <div style="background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px;margin-bottom:20px">
+    <div class="chart-wrap" style="height:420px"><canvas id="expStackChart"></canvas></div>
   </div>
 
   <!-- 支出卡片 -->
   <div class="sec">🏥 各院區支出明細</div>
-  <div id="expCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-bottom:18px"></div>
+  <div id="expCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-bottom:18px"></div>
 
 </div><!-- end expenseSection -->
 
@@ -1610,6 +1613,10 @@ const EXPENSE_STATIC={
     {clinic:"平鎮院區",total:2582646,藥費:546628,餐費:12100,雜項:106987,租金:121030,薪資:1627795,稅務:6412,零用金:161694},
     {clinic:"埔心院區",total:2305071,藥費:412638,餐費:12150,雜項:49043,租金:21000,薪資:1473814,稅務:6940,零用金:329486},
     {clinic:"觀音院區",total:2193055,藥費:259440,餐費:13150,雜項:508690,租金:0,薪資:1226141,稅務:7395,零用金:178239},
+    // ── 公司層（計入集團總支出，不計入院區圖表）──
+    // ⚠ 請填入實際數字：目前為 0（待更新）
+    {clinic:"金鶯公司",total:0,藥費:0,餐費:0,雜項:0,租金:0,薪資:0,稅務:0,零用金:0},
+    {clinic:"擇木公司",total:0,藥費:0,餐費:0,雜項:0,租金:0,薪資:0,稅務:0,零用金:0},
   ]
 };
 
@@ -1625,12 +1632,110 @@ function initExpense(){
   const btnEl=document.getElementById('expMonthBtns');
   btnEl.innerHTML=months.map(m=>{
     const yr=+m.slice(0,4)-1911,mo=+m.slice(5,7);
-    return`<button onclick="setExpMonth('${m}')" id="expbtn_${m}" style="padding:5px 14px;border-radius:99px;border:1px solid var(--bd);background:${m===expYm?'#3b82f6':'transparent'};color:${m===expYm?'#fff':'var(--sub)'};font-size:13px;cursor:pointer;font-family:inherit">${yr}年${mo}月</button>`;
+    const active=m===expYm;
+    return`<button onclick="setExpMonth('${m}')" id="expbtn_${m}" style="padding:8px 20px;border-radius:99px;border:2px solid ${active?'#3b82f6':'rgba(255,255,255,.15)'};background:${active?'#3b82f6':'transparent'};color:${active?'#fff':'#cbd5e1'};font-size:15px;font-weight:${active?'800':'600'};cursor:pointer;font-family:inherit;transition:all .2s">${yr}年${mo}月</button>`;
   }).join('');
 
+  renderExpSummary();
   renderExpRevExp();
   renderExpStack();
   renderExpCards();
+}
+
+// ─── 集團總覽字卡 ─────────────────────────────
+function renderExpSummary(){
+  const el=document.getElementById('expGroupSummary');
+  if(!el)return;
+
+  const yr=+expYm.slice(0,4)-1911, mo=+expYm.slice(5,7);
+
+  // ── 總支出：所有院區（含公司層）加總 ──
+  const allRows=expData[expYm]||[];
+  const totalExp=allRows.reduce((s,r)=>s+(r.total||0),0);
+
+  // ── 總收入：所有有資料的院區公式加總 ──
+  const clinicRows=allRows.filter(r=>!EXP_CLINIC_FILTER.includes(r.clinic));
+  let totalRev=0, revCount=0;
+  clinicRows.forEach(r=>{
+    const rev=calcClinicRevenue(r.clinic,expYm);
+    if(rev!==null){totalRev+=rev;revCount++;}
+  });
+
+  // ── 淨利與利潤率 ──
+  const hasRev=revCount>0;
+  const profit=hasRev?totalRev-totalExp:null;
+  const margin=hasRev&&totalRev>0?profit/totalRev*100:null;
+
+  // ── 顏色 ──
+  const profColor=profit>=0?'#34d399':'#f87171';
+  const profBg=profit>=0?'rgba(16,185,129,.12)':'rgba(239,68,68,.1)';
+  const profBorder=profit>=0?'rgba(16,185,129,.3)':'rgba(239,68,68,.25)';
+  const profIcon=profit>=0?'📈':'📉';
+  const marginColor=margin>=20?'#34d399':margin>=10?'#fbbf24':'#f87171';
+
+  // ── 收入資料來源標注 ──
+  const revNote=revCount===clinicRows.length
+    ?`<span style="color:#22d3ee;font-size:11px">✓ ${revCount} 間院區公式合計</span>`
+    :`<span style="color:#f59e0b;font-size:11px">⚠ 僅 ${revCount}/${clinicRows.length} 間院區有配對資料</span>`;
+
+  el.innerHTML=`
+  <!-- 標題列 -->
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+    <div style="font-size:18px;font-weight:900;color:#ffffff">🏢 金鶯集團 ${yr}年${mo}月 總覽</div>
+    <div style="font-size:12px;color:#475569;padding:3px 10px;background:rgba(255,255,255,.05);border-radius:99px">概略估算</div>
+  </div>
+
+  <!-- 三欄字卡 -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:22px">
+
+    <!-- 總收入 -->
+    <div style="background:rgba(16,185,129,.1);border:2px solid rgba(16,185,129,.3);border-radius:16px;padding:20px">
+      <div style="font-size:13px;font-weight:700;color:#6ee7b7;margin-bottom:6px;letter-spacing:.5px">💰 集團估算總收入</div>
+      <div style="font-size:34px;font-weight:900;color:#34d399;line-height:1">${hasRev?(totalRev/10000).toFixed(0):'—'}<span style="font-size:16px;font-weight:500;color:#6ee7b7"> 萬元</span></div>
+      <div style="margin-top:8px">${revNote}</div>
+      <div style="margin-top:4px;font-size:11px;color:#475569">來源：健保人次×200＋減重×1,200＋銷售＋點數</div>
+    </div>
+
+    <!-- 總支出 -->
+    <div style="background:rgba(239,68,68,.1);border:2px solid rgba(239,68,68,.25);border-radius:16px;padding:20px">
+      <div style="font-size:13px;font-weight:700;color:#fca5a5;margin-bottom:6px;letter-spacing:.5px">💸 集團總支出</div>
+      <div style="font-size:34px;font-weight:900;color:#f87171;line-height:1">${(totalExp/10000).toFixed(0)}<span style="font-size:16px;font-weight:500;color:#fca5a5"> 萬元</span></div>
+      <div style="margin-top:8px;font-size:11px;color:#94a3b8">${allRows.length} 個單位（含公司）加總</div>
+      <div style="margin-top:4px;font-size:11px;color:#475569">薪資＋藥費＋租金＋雜項＋稅務…</div>
+    </div>
+
+    <!-- 淨利 -->
+    <div style="background:${profBg};border:2px solid ${profBorder};border-radius:16px;padding:20px">
+      <div style="font-size:13px;font-weight:700;color:${profColor};margin-bottom:6px;letter-spacing:.5px">${profIcon} 估算淨利</div>
+      ${hasRev
+        ?`<div style="font-size:34px;font-weight:900;color:${profColor};line-height:1">${profit>=0?'':'-'}${Math.abs(profit/10000).toFixed(0)}<span style="font-size:16px;font-weight:500"> 萬元</span></div>
+           <div style="margin-top:10px">
+             <div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-bottom:5px"><span>利潤率</span><span style="color:${marginColor};font-weight:800;font-size:14px">${margin.toFixed(1)}%</span></div>
+             <div style="background:rgba(255,255,255,.08);border-radius:4px;height:8px">
+               <div style="background:${marginColor};width:${Math.max(0,Math.min(100,margin))}%;height:100%;border-radius:4px;box-shadow:0 0 8px ${marginColor}66"></div>
+             </div>
+           </div>`
+        :`<div style="font-size:18px;color:#64748b">收入資料不足，無法計算</div>`
+      }
+    </div>
+
+  </div>
+
+  <!-- 子細項條 -->
+  ${hasRev?`
+  <div style="background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:22px;display:flex;flex-wrap:wrap;gap:18px;align-items:center">
+    <div style="font-size:13px;font-weight:700;color:#94a3b8">費用結構佔收入比 ─</div>
+    ${EXP_CATS.map((cat,i)=>{
+      const catTotal=clinicRows.reduce((s,r)=>{const row=allRows.find(x=>x.clinic===r.clinic);return s+(row?row[cat]||0:0);},0);
+      const pct=totalRev>0?catTotal/totalRev*100:0;
+      return`<div style="display:flex;align-items:center;gap:6px">
+        <div style="width:10px;height:10px;border-radius:2px;background:${EXP_COLORS[i]};flex-shrink:0"></div>
+        <span style="font-size:13px;color:#e2e8f0;font-weight:600">${cat}</span>
+        <span style="font-size:13px;color:${EXP_COLORS[i]};font-weight:800">${pct.toFixed(1)}%</span>
+      </div>`;
+    }).join('')}
+  </div>`:''}
+  `;
 }
 
 function setExpMonth(ym){
@@ -1663,7 +1768,7 @@ function renderExpRevExp(){
   const yr=+expYm.slice(0,4)-1911, mo=+expYm.slice(5,7);
   document.getElementById('expRevMonth').textContent=`對應收入期間：${yr}年${mo}月`;
 
-  const labels=sorted.map(r=>r.clinic.replace('院區',''));
+  const labels=sorted.map(r=>r.clinic);
   const expenses=sorted.map(r=>Math.round(r.total/10000*10)/10);
   const revenues=sorted.map(r=>{
     const rev=calcClinicRevenue(r.clinic, expYm);
@@ -1679,21 +1784,23 @@ function renderExpRevExp(){
     data:{
       labels,
       datasets:[
-        {label:'估算收入（萬）',data:revenues,backgroundColor:'#10b98133',borderColor:'#10b981',borderWidth:2,borderRadius:4},
-        {label:'總支出（萬）',data:expenses,backgroundColor:'#ef444433',borderColor:'#ef4444',borderWidth:2,borderRadius:4},
-        {label:'淨利估算（萬）',data:profits,backgroundColor:profits.map(p=>p>=0?'#06b6d433':'#f9731633'),borderColor:profits.map(p=>p>=0?'#06b6d4':'#f97316'),borderWidth:2,borderRadius:4,type:'bar'}
+        {label:'估算收入（萬元）',data:revenues,backgroundColor:'#10b98155',borderColor:'#10b981',borderWidth:2,borderRadius:5},
+        {label:'總支出（萬元）',data:expenses,backgroundColor:'#ef444455',borderColor:'#ef4444',borderWidth:2,borderRadius:5},
+        {label:'淨利估算（萬元）',data:profits,backgroundColor:profits.map(p=>p>=0?'#06b6d455':'#f9731655'),borderColor:profits.map(p=>p>=0?'#06b6d4':'#f97316'),borderWidth:2,borderRadius:5,type:'bar'}
       ]
     },
     options:{
       ...CHART_OPTS,
       plugins:{
         ...CHART_OPTS.plugins,
-        legend:{display:true,position:'top',labels:{color:'#94a3b8',font:{size:12},padding:14,usePointStyle:true}},
-        tooltip:{...CHART_OPTS.plugins.tooltip,mode:'index',intersect:false,callbacks:{label:ctx=>`${ctx.dataset.label}：${ctx.parsed.y!==null?(ctx.parsed.y).toLocaleString()+'萬':'無收入資料'}`}}
+        legend:{display:true,position:'top',labels:{color:'#e2e8f0',font:{size:14,weight:'bold'},padding:20,usePointStyle:true,pointStyleWidth:14}},
+        tooltip:{...CHART_OPTS.plugins.tooltip,mode:'index',intersect:false,
+          titleFont:{size:14,weight:'bold'},bodyFont:{size:13},
+          callbacks:{label:ctx=>`${ctx.dataset.label}：${ctx.parsed.y!==null?ctx.parsed.y.toLocaleString()+'萬':'無收入資料'}`}}
       },
       scales:{
-        x:{...CHART_OPTS.scales.x},
-        y:{...CHART_OPTS.scales.y,ticks:{...CHART_OPTS.scales.y.ticks,callback:v=>v+'萬'}}
+        x:{...CHART_OPTS.scales.x,ticks:{color:'#f1f5f9',font:{size:14,weight:'bold'},maxRotation:0}},
+        y:{...CHART_OPTS.scales.y,ticks:{color:'#cbd5e1',font:{size:13},callback:v=>v+'萬'}}
       }
     }
   });
@@ -1706,15 +1813,15 @@ function renderExpStack(){
 
   const rows=(expData[expYm]||[]).filter(r=>!EXP_CLINIC_FILTER.includes(r.clinic));
   const sorted=[...rows].sort((a,b)=>b.total-a.total);
-  const labels=sorted.map(r=>r.clinic.replace('院區',''));
+  const labels=sorted.map(r=>r.clinic);
 
   const datasets=EXP_CATS.map((cat,i)=>({
     label:cat,
     data:sorted.map(r=>Math.round((r[cat]||0)/10000*10)/10),
-    backgroundColor:EXP_COLORS[i]+'bb',
+    backgroundColor:EXP_COLORS[i]+'cc',
     borderColor:EXP_COLORS[i],
     borderWidth:1,
-    borderRadius:2
+    borderRadius:3
   }));
 
   expStackInst=new Chart(canvas,{
@@ -1725,12 +1832,14 @@ function renderExpStack(){
       indexAxis:'y',
       plugins:{
         ...CHART_OPTS.plugins,
-        legend:{display:true,position:'top',labels:{color:'#94a3b8',font:{size:12},padding:12,usePointStyle:true}},
-        tooltip:{...CHART_OPTS.plugins.tooltip,mode:'index',intersect:false,callbacks:{label:ctx=>`${ctx.dataset.label}：${ctx.parsed.x.toLocaleString()}萬`}}
+        legend:{display:true,position:'top',labels:{color:'#e2e8f0',font:{size:14,weight:'bold'},padding:18,usePointStyle:true,pointStyleWidth:14}},
+        tooltip:{...CHART_OPTS.plugins.tooltip,mode:'index',intersect:false,
+          titleFont:{size:14,weight:'bold'},bodyFont:{size:13},
+          callbacks:{label:ctx=>`${ctx.dataset.label}：${ctx.parsed.x.toLocaleString()}萬`}}
       },
       scales:{
-        x:{...CHART_OPTS.scales.x,stacked:true,ticks:{...CHART_OPTS.scales.x.ticks,callback:v=>v+'萬'}},
-        y:{...CHART_OPTS.scales.y,stacked:true,ticks:{color:'#94a3b8',font:{size:12}}}
+        x:{...CHART_OPTS.scales.x,stacked:true,ticks:{color:'#cbd5e1',font:{size:13},callback:v=>v+'萬'}},
+        y:{...CHART_OPTS.scales.y,stacked:true,ticks:{color:'#f1f5f9',font:{size:15,weight:'bold'}}}
       }
     }
   });
@@ -1746,34 +1855,43 @@ function renderExpCards(){
     const rev=calcClinicRevenue(r.clinic, expYm);
     const profit=rev!==null?rev-r.total:null;
     const profitTxt=profit!==null?
-      `<span style="color:${profit>=0?'#10b981':'#ef4444'};font-weight:700">${profit>=0?'▲':'▼'} ${Math.abs(profit/10000).toFixed(1)}萬</span>`
-      :'<span style="color:#475569">收入資料不在此月</span>';
+      `<span style="color:${profit>=0?'#34d399':'#f87171'};font-weight:800;font-size:20px">${profit>=0?'▲':'▼'} ${Math.abs(profit/10000).toFixed(1)}<span style="font-size:14px;font-weight:500"> 萬</span></span>`
+      :'<span style="color:#64748b;font-size:14px">無收入資料</span>';
 
     const bars=EXP_CATS.map((cat,i)=>{
       const pct=(r[cat]||0)/r.total*100;
-      return`<div style="margin-bottom:5px">
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-bottom:2px"><span>${cat}</span><span>${((r[cat]||0)/10000).toFixed(1)}萬（${pct.toFixed(0)}%）</span></div>
-        <div style="background:rgba(255,255,255,.06);border-radius:3px;height:6px"><div style="background:${EXP_COLORS[i]};width:${pct}%;height:100%;border-radius:3px"></div></div>
+      return`<div style="margin-bottom:9px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+          <span style="font-size:13px;font-weight:600;color:#e2e8f0">${cat}</span>
+          <span style="font-size:13px;font-weight:700;color:${EXP_COLORS[i]}">${((r[cat]||0)/10000).toFixed(1)}萬 <span style="color:#94a3b8;font-weight:400">（${pct.toFixed(0)}%）</span></span>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border-radius:4px;height:9px"><div style="background:${EXP_COLORS[i]};width:${pct}%;height:100%;border-radius:4px;box-shadow:0 0 6px ${EXP_COLORS[i]}66"></div></div>
       </div>`;
     }).join('');
 
-    return`<div style="background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <span style="font-size:15px;font-weight:700;color:#e2e8f0">${r.clinic}</span>
-        <span style="font-size:12px;color:#64748b">${yr}年${mo}月</span>
+    return`<div style="background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px">
+      <!-- 院區標題 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <span style="font-size:19px;font-weight:800;color:#ffffff;letter-spacing:.5px">${r.clinic}</span>
+        <span style="font-size:13px;color:#94a3b8;background:rgba(255,255,255,.06);padding:3px 10px;border-radius:99px">${yr}年${mo}月</span>
       </div>
-      <div style="display:flex;gap:12px;margin-bottom:14px">
-        <div style="flex:1;background:rgba(239,68,68,.08);border-radius:8px;padding:10px">
-          <div style="font-size:11px;color:#94a3b8;margin-bottom:3px">總支出</div>
-          <div style="font-size:18px;font-weight:900;color:#ef4444">${(r.total/10000).toFixed(1)}<span style="font-size:12px;font-weight:400"> 萬</span></div>
+      <!-- KPI 行 -->
+      <div style="display:flex;gap:10px;margin-bottom:16px">
+        <div style="flex:1;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:12px">
+          <div style="font-size:12px;font-weight:600;color:#fca5a5;margin-bottom:4px;letter-spacing:.3px">💸 總支出</div>
+          <div style="font-size:22px;font-weight:900;color:#f87171;line-height:1.1">${(r.total/10000).toFixed(1)}<span style="font-size:13px;font-weight:500;color:#fca5a5"> 萬元</span></div>
         </div>
-        <div style="flex:1;background:rgba(16,185,129,.08);border-radius:8px;padding:10px">
-          <div style="font-size:11px;color:#94a3b8;margin-bottom:3px">估算淨利</div>
-          <div style="font-size:15px;font-weight:700">${profitTxt}</div>
+        <div style="flex:1;background:${profit===null?'rgba(71,85,105,.1)':profit>=0?'rgba(16,185,129,.12)':'rgba(239,68,68,.08)'};border:1px solid ${profit===null?'rgba(71,85,105,.2)':profit>=0?'rgba(16,185,129,.25)':'rgba(239,68,68,.2)'};border-radius:10px;padding:12px">
+          <div style="font-size:12px;font-weight:600;color:${profit===null?'#64748b':profit>=0?'#6ee7b7':'#fca5a5'};margin-bottom:4px;letter-spacing:.3px">📈 估算淨利</div>
+          ${profitTxt}
         </div>
       </div>
-      <div style="font-size:11px;color:#64748b;margin-bottom:8px">最大支出：<b style="color:#fcd34d">${maxCat}（${((r[maxCat]||0)/r.total*100).toFixed(0)}%）</b></div>
-      ${bars}
+      <!-- 最大支出提示 -->
+      <div style="font-size:13px;color:#cbd5e1;margin-bottom:12px;padding:8px 12px;background:rgba(252,211,77,.06);border-left:3px solid #fcd34d;border-radius:0 6px 6px 0">
+        最大支出項目：<b style="color:#fde68a;font-size:14px">${maxCat}</b> <span style="color:#94a3b8">佔比</span> <b style="color:#fcd34d;font-size:15px">${((r[maxCat]||0)/r.total*100).toFixed(0)}%</b>
+      </div>
+      <!-- 支出條狀圖 -->
+      <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:12px">${bars}</div>
     </div>`;
   }).join('');
 }
