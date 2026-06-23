@@ -1632,17 +1632,22 @@ async function loadGroupRevenue(){
     const txt=await res.text();
     const lines=txt.trim().split('\n').slice(1); // skip header
     lines.forEach(line=>{
-      const cols=line.split(',');
-      if(cols.length<2)return;
-      const raw=cols[0].replace(/"/g,'').trim();       // "2026/05"
-      const val=parseInt(cols[1].replace(/[",]/g,''),10); // 58311734
-      if(!raw||isNaN(val))return;
-      const ym=raw.replace('/','-');  // "2026-05"
+      // 正確解析帶引號的 CSV：每欄格式為 "2026/05","58,311,734"
+      // 用 regex 把各欄引號內的內容抓出來，不受欄內逗號影響
+      const m=line.match(/"([^"]*)","([^"]*)"/);
+      if(!m) return;
+      const raw=m[1].trim();                        // 2026/05
+      const val=parseInt(m[2].replace(/,/g,''),10); // 58311734
+      if(!raw||isNaN(val)||val===0) return;
+      // 轉成 "YYYY-MM" 格式與主儀表板 ym 對齊
+      const ym=raw.replace('/','-');  // 2026/05 → 2026-05
       groupRevData[ym]=val;
     });
-    console.log('集團收入資料載入成功，共',Object.keys(groupRevData).length,'期');
+    console.log('✅ 集團收入載入成功，共',Object.keys(groupRevData).length,'期，最新：',
+      Object.keys(groupRevData).sort().slice(-1)[0],
+      '→',groupRevData[Object.keys(groupRevData).sort().slice(-1)[0]],'元');
   }catch(e){
-    console.warn('集團收入試算表載入失敗，改用公式估算：',e.message);
+    console.warn('⚠ 集團收入試算表載入失敗，改用公式估算：',e.message);
   }
 }
 
@@ -1763,12 +1768,15 @@ function renderExpSummary(){
   <div style="background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:22px;display:flex;flex-wrap:wrap;gap:18px;align-items:center">
     <div style="font-size:13px;font-weight:700;color:#94a3b8">費用結構佔收入比 ─</div>
     ${EXP_CATS.map((cat,i)=>{
-      const catTotal=clinicRows.reduce((s,r)=>{const row=allRows.find(x=>x.clinic===r.clinic);return s+(row?row[cat]||0:0);},0);
-      const pct=totalRev>0?catTotal/totalRev*100:0;
+      // 分母用總支出（而非收入），避免收入載入失敗時除以零
+      const catTotal=allRows.reduce((s,r)=>s+(r[cat]||0),0);
+      const pctOfExp=totalExp>0?catTotal/totalExp*100:0;
+      const pctOfRev=totalRev>0?catTotal/totalRev*100:null;
       return`<div style="display:flex;align-items:center;gap:6px">
         <div style="width:10px;height:10px;border-radius:2px;background:${EXP_COLORS[i]};flex-shrink:0"></div>
         <span style="font-size:13px;color:#e2e8f0;font-weight:600">${cat}</span>
-        <span style="font-size:13px;color:${EXP_COLORS[i]};font-weight:800">${pct.toFixed(1)}%</span>
+        <span style="font-size:13px;color:${EXP_COLORS[i]};font-weight:800">${pctOfExp.toFixed(1)}%<span style="color:#64748b;font-size:11px;font-weight:400">（佔支出）</span></span>
+        ${pctOfRev!==null?`<span style="font-size:12px;color:#94a3b8">${pctOfRev.toFixed(1)}%佔收入</span>`:''}
       </div>`;
     }).join('')}
   </div>`:''}
