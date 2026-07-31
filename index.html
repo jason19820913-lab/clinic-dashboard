@@ -1922,6 +1922,15 @@ function renderExpCards(){
     const prevYm=expMode==='M'?expPrevMonth(expYm):expPrevQYm(expYm);
     const prevRev=prevR?calcClinicRevenue(r.clinic,prevYm):null;
     const prevProfit=(prevRev!==null&&prevR)?prevRev-prevR.total:null;
+
+    // ── 上期收入比較（收入增加=綠、減少=紅）──
+    let revCmp='';
+    if(rev!==null&&prevRev!==null&&prevRev>0){
+      const rDiff=rev-prevRev, rPct=rDiff/prevRev*100, rUp=rDiff>=0;
+      revCmp=`<div style="font-size:10px;color:#64748b;margin-top:2px">vs ${prevLabel} ${(prevRev/10000).toFixed(1)}萬
+        <span style="font-weight:700;color:${rUp?'#6ee7b7':'#fca5a5'};background:${rUp?'rgba(16,185,129,.15)':'rgba(239,68,68,.15)'};padding:1px 5px;border-radius:3px;margin-left:3px">${rUp?'▲':'▼'}${Math.abs(rDiff/10000).toFixed(1)}萬</span>
+        <span style="color:${rUp?'#6ee7b7':'#fca5a5'};margin-left:2px">${rUp?'▲':'▼'}${Math.abs(rPct).toFixed(1)}%</span></div>`;
+    }
     let profitCmp='';
     if(profit!==null&&prevProfit!==null){
       const diff=profit-prevProfit;
@@ -1959,7 +1968,7 @@ function renderExpCards(){
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
         <div style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:11px">
           <div style="font-size:11px;font-weight:700;color:#6ee7b7;margin-bottom:3px">💰 總收入</div>
-          ${rev!==null?`<div style="font-size:17px;font-weight:900;color:#34d399">${(rev/10000).toFixed(1)}<span style="font-size:10px;color:#6ee7b7"> 萬</span></div>`:`<div style="font-size:11px;color:#475569;margin-top:3px">無資料</div>`}
+          ${rev!==null?`<div style="font-size:17px;font-weight:900;color:#34d399">${(rev/10000).toFixed(1)}<span style="font-size:10px;color:#6ee7b7"> 萬</span></div>${revCmp}`:`<div style="font-size:11px;color:#475569;margin-top:3px">無資料</div>`}
         </div>
         <div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:11px">
           <div style="font-size:11px;font-weight:700;color:#fca5a5;margin-bottom:3px">💸 總支出</div>
