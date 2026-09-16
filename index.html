@@ -502,13 +502,17 @@ let GEMINI_MODEL=localStorage.getItem('gemini_model')||'gemini-2.0-flash-lite';
 
 async function init(){
   document.getElementById("btnR").classList.add("ld");
-  show("ls");
   resetAI();
+  // ── 先用靜態資料立即顯示畫面（不讓使用者空等）──
+  rawD=parseR_raw(STATIC); D=applyKDZL(rawD);
+  setTag("static","⏳ 連接雲端中…");
+  buildP(); curIdx=periods.length-1; renderQS(); render();
+  updateChatHint();
+  hide("ls");
+  // ── 背景抓雲端（Apps Script 冷啟動可能要 30 秒以上，最長等 60 秒）──
   try{
-    document.getElementById("lmsg").textContent="正在連接 Apps Script…";
-    // 8 秒逾時：超時自動切換靜態資料
     const ctrl=new AbortController();
-    const tid=setTimeout(()=>ctrl.abort(),8000);
+    const tid=setTimeout(()=>ctrl.abort(),60000);
     let r;
     try{
       r=await fetch(API,{signal:ctrl.signal});
@@ -520,16 +524,21 @@ async function init(){
     if(!r.ok) throw new Error("HTTP "+r.status);
     const j=await r.json();
     if(j.error) throw new Error(j.error);
+    // 雲端到手 → 換資料、記住目前選的期間、重新渲染
+    const keepIdx=curIdx, keepMode=(typeof mode!=='undefined')?mode:null;
     rawD=parseR_raw(j.data); D=applyKDZL(rawD);
+    buildP();
+    curIdx=Math.min(keepIdx,periods.length-1);
+    if(curIdx<0)curIdx=periods.length-1;
+    renderQS(); render();
+    updateChatHint();
     setTag("live","● 即時雲端");
+    console.log("✅ 雲端資料載入完成，共",j.count,"筆");
   }catch(e){
     console.warn("fallback:",e.message);
-    rawD=parseR_raw(STATIC); D=applyKDZL(rawD);
     setTag("static","● 靜態備用");
   }
-  buildP(); curIdx=periods.length-1; renderQS(); render();
-  updateChatHint();
-  hide("ls"); document.getElementById("btnR").classList.remove("ld");
+  document.getElementById("btnR").classList.remove("ld");
 }
 function setTag(c,t){const e=document.getElementById("srcTag");e.className=c;e.textContent=t;}
 
